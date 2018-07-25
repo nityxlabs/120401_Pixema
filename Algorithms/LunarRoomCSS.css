@@ -1,0 +1,52 @@
+* {
+	margin: 0;
+	padding: 0;
+	border: 0;	
+}
+
+body {
+	font:12px Arial, Helvetica, sans-serif;
+	background-color:#111111;
+	color:#EEEEEE;
+}
+
+#controlPanel{
+	position:absolute;
+	left:0px;
+	top:0px;
+	z-index:5;
+}
+
+#controlPanelBACKUP{
+	position:absolute;
+	left:0px;
+	top:0px;
+	z-index:5;
+	background-color:transparent;
+	width:600px;
+	height:100px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+/*CLASSES*/
+
+.personIcon {
+	font:bold 10px Arial, Helvetica, sans-serif;
+	color:#EEEEEE;
+	text-align:center;
+	width:25px;
+	height:25px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}
+
+.talkBox {
+	background:#222222;
+	padding:3px;
+	font:bold 10px Arial, Helvetica, sans-serif;
+	color:#EEEEEE;
+	text-align:left;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}

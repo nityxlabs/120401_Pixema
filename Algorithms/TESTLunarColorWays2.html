@@ -1,0 +1,253 @@
+<html>
+<head>
+<title>Lunar.Color.Ways :: Part 2</title>
+<link rel="stylesheet" type="text/css" href="LunarRoomCSS.css" />
+<script src="jquery.js"></script> 
+<script type="text/javascript">
+var isIE=document.all;
+//mouse movement
+var xOrig=0;
+var yOrig=0;
+
+//browserSize
+var widthOfWindow;	//for window dimensions - width
+var heightOfWindow;	//for window dimensions - height
+
+//for setting up randomly placed people
+var RNOP;		//Random Number of People
+
+//autonomously moving a person
+var movingTimer;
+
+//different types of movements
+var peepsMove=new Array();
+var moveInterval=new Array();
+//movement1()
+var move1=0;
+//movement2
+var move2=0;
+
+function browseAdj(x)
+{
+var object;
+	 if(document.getElementById){	//Mozilla
+                  object=document.getElementById(x);
+            }else if(document.all){		//Internet Explorer
+                  object=document.all[x];
+            }else if(document.layers){		//Netscape
+                  object=document.layers[x];
+            }          
+return object;
+}
+
+function browserSize() {
+	  var myWidth = 0, myHeight = 0;
+	  if( typeof( window.innerWidth ) == 'number' ) {   //Non-IE
+	    myWidth = window.innerWidth;
+	    myHeight = window.innerHeight;
+	    myXScroll = window.pageXOffset;
+	    myYScroll = window.pageYOffset;
+	  } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+	    //IE 6+ in 'standards compliant mode'
+	    myWidth = document.documentElement.clientWidth;
+	    myHeight = document.documentElement.clientHeight;
+	    myXScroll = document.documentElement.scrollLeft;
+	    myYScroll = document.documentElement.scrollTop;
+	  } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {  //IE 4 compatible
+	    myWidth = document.body.clientWidth;
+	    myHeight = document.body.clientHeight;
+	    myXScroll = document.body.scrollLeft;
+	    myYScroll = document.body.scrollTop;
+	  }
+	  widthOfWindow=myWidth-100;
+	  heightOfWindow=myHeight-100;
+	  currentXScroll=myXScroll;
+	  currentYScroll=myYScroll;
+	  //window.alert( 'Width = ' + myWidth );
+	  //window.alert( 'Height = ' + myHeight );  
+	}
+
+
+function mouseOrig(x)
+{
+	if (browseAdj(x))
+	{
+		xOrig = window.event.x;
+		yOrig = window.event.y;		
+	}
+	else //works for Netscape & Mozilla
+	{
+		xOrig = x.pageX;
+		yOrig = x.pageY;	
+	}
+}
+
+function randomColorGenerator()
+{
+	var colorString;
+	var colorR=Math.floor(Math.random()*255);
+	var colorB=Math.floor(Math.random()*255);
+	var colorG=Math.floor(Math.random()*255);
+	colorString="rgb("+colorR+","+colorB+","+colorG+")";
+	return colorString;
+}
+
+function randomNumOfPeople()
+{
+	RNOP=Math.round(Math.random()*10);
+	var i,getColor,personID;
+	var people="";
+	for(i=0;i<RNOP;i++)
+	{
+		getColor=randomColorGenerator();
+		personID="person"+i;
+		people+="<div id='"+personID+"' class='personIcon' style='position:absolute;left:0;top:0;background-color:"+getColor+";z-index:5;'>"+i+"</div>";
+	}
+	browseAdj("loadPeopleArea").innerHTML=people;
+}
+
+function randomlyPlace()
+{
+	var p,randomX,randomY,personID;
+	browserSize();
+	//randomly generate numbers within size of screen to place person
+	for(p=0;p<RNOP;p++)
+	{
+		personID="person"+p;
+		randomX=Math.random()*widthOfWindow;
+		randomY=Math.random()*heightOfWindow;
+		//position person in random location
+		browseAdj(personID).style.left=randomX;
+		browseAdj(personID).style.top=randomY;
+		//alert("rPLoop"+p+" of "+RNOP);
+	}
+}
+
+function movePeople()
+{
+	var b;
+	for(b=0;b<=moveInterval.length;b++){clearInterval(moveInterval[b]);}	
+	//initiate movements	
+	moveInterval[0]=setInterval("movements()",1000);		//400ms is the minimum time scale. Anything lower & the "people" start moving outside the browser screen
+}
+
+function movements()
+{
+	var i,selectRandomMove,xMove,yMove,currPosX,currPosY,unitBGColor,colorUnit;
+	var randomX1,randomY1,randomX2,randomY2,newX,newY,maxMoveX,maxMoveY;
+	var personID,jQID;
+	browserSize();
+	maxMoveX=20;
+	maxMoveY=20;
+	for(i=0;i<RNOP;i++)
+	{
+		personID="person"+i;
+		/*
+		//generate random positions to move to
+		randomX=Math.random()*widthOfWindow;
+		randomY=Math.random()*heightOfWindow;
+		*/
+		//find current location of person
+		currPosX=parseInt(browseAdj(personID).style.left);
+		currPosY=parseInt(browseAdj(personID).style.top);
+		unitBGColor=browseAdj(personID).style.backgroundColor;
+		//place duplicate box in paint area
+		colorUnit="<div class='personIcon' style='position:absolute;left:"+currPosX+";top:"+currPosY+";background-color:"+unitBGColor+";opacity:0.5;'>&nbsp;</div>";
+		browseAdj("paintArea").innerHTML+=colorUnit;
+		//new position of person
+		//randomly generate numbers within size of screen to place person
+		randomX1=Math.random()*maxMoveX;
+		randomX2=Math.random()*maxMoveX;
+		randomY1=Math.random()*maxMoveY;
+		randomY2=Math.random()*maxMoveY;
+		//these will be used for moving
+		newX=randomX2-randomX1;
+		newY=randomY2-randomY1;
+		selectRandomMove=Math.round(Math.random()*2);
+		if(selectRandomMove==0){xMove="+="+newX;yMove="+=0";}
+		else if(selectRandomMove==1){xMove="+=0";yMove="+="+newY;}
+		else if(selectRandomMove==2){xMove="+="+newX;yMove="+="+newY;}
+		$(function(event){
+			jQID="#"+personID;
+			$(jQID).animate({left:xMove,top:yMove});	
+		});
+	}
+}
+
+function movements2()		//movements full screen
+{
+	var i,selectRandomMove,xMove,yMove,currPosX,currPosY,unitBGColor,colorUnit;
+	var randomX1,randomY1,randomX2,randomY2,newX,newY,maxMoveX,maxMoveY;
+	var personID,jQID;
+	browserSize();
+	maxMoveX=widthOfWindow;
+	maxMoveY=heightOfWindow;
+	for(i=0;i<RNOP;i++)
+	{
+		personID="person"+i;
+		//generate random positions to move to
+		randomX=Math.random()*widthOfWindow;
+		randomY=Math.random()*heightOfWindow;
+		//find current location of person
+		currPosX=parseInt(browseAdj(personID).style.left);
+		currPosY=parseInt(browseAdj(personID).style.top);
+		unitBGColor=browseAdj(personID).style.backgroundColor;
+		//place duplicate box in paint area
+		colorUnit="<div class='personIcon' style='position:absolute;left:"+currPosX+";top:"+currPosY+";background-color:"+unitBGColor+";opacity:0.5;'>&nbsp;</div>";
+		browseAdj("paintArea").innerHTML+=colorUnit;
+		//new position of person
+		/*
+		//randomly generate numbers within size of screen to place person
+		randomX1=Math.random()*maxMoveX;
+		randomX2=Math.random()*maxMoveX;
+		randomY1=Math.random()*maxMoveY;
+		randomY2=Math.random()*maxMoveY;
+		//these will be used for moving
+		newX=randomX2-randomX1;
+		newY=randomY2-randomY1;
+		*/		
+		
+		//new position of person
+		newX=randomX-currPosX;
+		newY=randomY-currPosY;
+		selectRandomMove=Math.round(Math.random()*2);
+		if(selectRandomMove==0){xMove="+="+newX;yMove="+=0";}
+		else if(selectRandomMove==1){xMove="+=0";yMove="+="+newY;}
+		else if(selectRandomMove==2){xMove="+="+newX;yMove="+="+newY;}
+		
+		$(function(event){
+			jQID="#"+personID;
+			$(jQID).animate({left:xMove,top:yMove});	
+		});
+	}
+}
+
+function restartMovePeople()
+{
+	movingTimer=setInterval('movePeople()',10000);
+}
+
+function stopPerson()
+{
+	var a;
+	clearInterval(movingTimer);
+	for(a=0;a<moveInterval.length;a++){clearInterval(moveInterval[a]);}
+}
+
+function initialFunctions()
+{
+	//generate random # of people
+	randomNumOfPeople();
+	//randomly place people
+	randomlyPlace();
+	//start moving people
+	restartMovePeople();
+}
+</script>
+</head>
+<body onload="initialFunctions()">
+<span id="paintArea"></span>
+<span id="loadPeopleArea"></span>
+<button onclick="restartMovePeople()">Start</button>&nbsp;&nbsp;&nbsp;<button onclick="stopPerson()">Stop</button>
+</body>
+</html>

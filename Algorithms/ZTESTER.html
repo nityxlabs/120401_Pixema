@@ -1,0 +1,116 @@
+<html>
+<head>
+<style type="text/css"> 
+#testBox
+{
+width:100px;
+height:100px;
+background:red;
+position:absolute;
+left:500px;
+top:500px;
+}
+
+#testBox2
+{
+position:absolute;
+top:100px;
+left:200px;
+width:50px;
+height:50px;
+background:red;
+}
+
+#testBox2b
+{
+width:40px;
+height:40px;
+background:blue;
+}
+
+.anime
+{
+animation:myfirst 5s;
+-moz-animation:myfirst 2s infinite; /* Firefox */
+-webkit-animation:myfirst 2s infinite; /* Safari and Chrome */
+}
+
+.pacingAnime
+{
+animation:pacing 5s;
+-moz-animation:pacing 1s infinite; /* Firefox */
+-webkit-animation:pacing 2s infinite; /* Safari and Chrome */
+}
+
+@keyframes myfirst
+{
+0%   {background:red;}
+25%  {background:yellow;}
+50%  {background:blue;}
+100% {background:green;}
+}
+@-moz-keyframes myfirst /* Firefox */
+{
+0%    {opacity:1;}
+50%   {opacity:0.2;}
+100%  {opacity:1;}
+}
+@-webkit-keyframes myfirst /* Safari and Chrome */
+{
+0%   {left:500px;}
+25%  {left:450px;}
+50%  {left:500px;}
+75%  {left:550px;}
+100% {left:500px;}
+}
+
+
+@-moz-keyframes pacing /* Firefox */
+{
+0%    {padding:0px 0;}
+50%   {padding:100px 0;}
+100%  {padding:0px 0;}
+}
+@-webkit-keyframes pacing /* Safari and Chrome */
+{
+0%    {padding:0px 0;}
+50%   {padding:100px 0;}
+100%  {padding:0px 0;}
+}
+</style>
+<script type="text/javascript">
+function test()
+{
+	if(document.getElementById("testBox").getAttribute("class")!="anime")
+	{document.getElementById("testBox").setAttribute("class","anime");}
+	else{document.getElementById("testBox").removeAttribute("class");}
+}
+
+function test2()
+{
+	if(document.getElementById("testBox2").getAttribute("class")!="pacingAnime")
+	{document.getElementById("testBox2").setAttribute("class","pacingAnime");}
+	else{document.getElementById("testBox2").removeAttribute("class");}
+}
+
+function test3()
+{
+	alert(document.getElementById("testBox2").getAttribute("class"));
+}
+</script>
+</head>
+<body>
+
+<p><b>Note:</b> This example does not work in Internet Explorer and Opera.</p>
+<p><b>Note:</b> When an animation is finished, it changes back to its original style.</p>
+
+<span id="testBox" onclick="test()">HERRO</span>
+
+<div id="testBox2">
+<div id="testBox2b" onclick="test2()"></div>
+</div>
+
+</body>
+</html>
+
+

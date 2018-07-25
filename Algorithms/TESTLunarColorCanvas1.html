@@ -1,0 +1,175 @@
+<html>
+<head>
+<title>Lunar.Color.Canvas :: Test 1</title>
+<link rel="stylesheet" type="text/css" href="LunarRoomCSS.css" />
+<script src="jquery.js"></script> 
+<script type="text/javascript">
+var isIE=document.all;
+//mouse movement
+var xOrig=0;
+var yOrig=0;
+
+//browserSize
+var widthOfWindow;	//for window dimensions - width
+var heightOfWindow;	//for window dimensions - height
+
+//drawLines
+var isdown=false;
+var lastX=0;
+var lastY=0;
+
+function browseAdj(x)
+{
+var object;
+	 if(document.getElementById){	//Mozilla
+                  object=document.getElementById(x);
+            }else if(document.all){		//Internet Explorer
+                  object=document.all[x];
+            }else if(document.layers){		//Netscape
+                  object=document.layers[x];
+            }          
+return object;
+}
+
+function browserSize() {
+	  var myWidth = 0, myHeight = 0;
+	  if( typeof( window.innerWidth ) == 'number' ) {   //Non-IE
+	    myWidth = window.innerWidth;
+	    myHeight = window.innerHeight;
+	    myXScroll = window.pageXOffset;
+	    myYScroll = window.pageYOffset;
+	  } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+	    //IE 6+ in 'standards compliant mode'
+	    myWidth = document.documentElement.clientWidth;
+	    myHeight = document.documentElement.clientHeight;
+	    myXScroll = document.documentElement.scrollLeft;
+	    myYScroll = document.documentElement.scrollTop;
+	  } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {  //IE 4 compatible
+	    myWidth = document.body.clientWidth;
+	    myHeight = document.body.clientHeight;
+	    myXScroll = document.body.scrollLeft;
+	    myYScroll = document.body.scrollTop;
+	  }
+	  widthOfWindow=myWidth-20;
+	  heightOfWindow=myHeight-20;
+	  currentXScroll=myXScroll;
+	  currentYScroll=myYScroll;
+	  //window.alert( 'Width = ' + myWidth );
+	  //window.alert( 'Height = ' + myHeight );  
+	}
+
+
+function mouseOrig(x)
+{
+	if (browseAdj(x))
+	{
+		xOrig = window.event.x;
+		yOrig = window.event.y;		
+	}
+	else //works for Netscape & Mozilla
+	{
+		xOrig = x.pageX;
+		yOrig = x.pageY;	
+	}
+}
+
+//CANVAS FUNCTIONS
+function draw()
+{
+	var canvas = document.getElementById('canvasArea');
+	if (canvas.getContext)
+	{
+		var ctx = canvas.getContext('2d');
+		ctx.beginPath();
+		ctx.moveTo(300,300);
+		ctx.lineTo(900,900);
+		ctx.stroke();
+		ctx.closePath();
+	}
+}
+
+function drawLines(e)
+{
+	mouseOrig(e);
+	var xPos,yPos;
+	var lines=isIE ? e.srcElement : e.target;
+	var canvas=document.getElementById("canvasArea");
+	//alert("dL1");
+	if(canvas.getContext)
+	{
+		var ctx = canvas.getContext('2d');
+		ctx.strokeStyle="#FFA500";
+		ctx.beginPath();
+		//get cursor position & moveTo that position
+		ctx.moveTo(xOrig,yOrig);
+		//alert("dL2: "+xOrig+" | "+yOrig);
+		//onmousemove - draw the line in the position
+		isdown=true;
+		document.onmousemove=function(e){
+			if(isdown)
+			{
+				xPos=isIE ? event.clientX : e.clientX;
+				yPos=isIE ? event.clientY : e.clientY; 	
+				//ctx.moveTo(xOrig,yOrig);
+				ctx.lineTo(xPos,yPos);
+				ctx.stroke();
+				/*
+				var str="x1: "+xOrig+" x2:"+xPos+"<br/>y1: "+yOrig+" y2:"+yPos;
+				browseAdj("nums").innerHTML=str;
+				*/
+			}
+		}
+		document.onmouseup=function(){
+			ctx.closePath();
+			isdown=false;
+		}		
+	}
+}
+
+function mousePos(e)
+{
+	mouseOrig(e);
+	var xPos,yPos,str;
+	document.onmousemove=function(e) {
+	xPos=isIE ? event.clientX : e.clientX;
+	yPos=isIE ? event.clientY : e.clientY; 	
+	str="x1: "+xOrig+" x2:"+xPos+"<br/>y1: "+yOrig+" y2:"+yPos;
+	browseAdj("nums").innerHTML=str;
+	}
+}
+
+function drawLines2(e)
+{
+	mouseOrig(e);
+	var canvas=document.getElementById("canvasArea");
+	if(canvas.getContext)
+	{
+		var ctx=canvas.getContext('2d');
+		ctx.beginPath();
+		ctx.moveTo(lastX,lastY);
+		ctx.lineTo(xOrig,yOrig);
+		ctx.stroke();
+		ctx.closePath();
+		lastX=xOrig;
+		lastY=yOrig;
+	}
+}
+
+
+function initialFunctions()
+{
+	//make canvas as large as screen
+	browserSize();
+	browseAdj("canvasArea").width=widthOfWindow;
+	browseAdj("canvasArea").height=heightOfWindow;
+}
+</script>
+</head>
+<body onload="initialFunctions()">
+<span id="nums"></span>
+<span id="popUpLand"></span>
+<span id="nodeLand"></span>
+<canvas id="canvasArea" style="border:1px solid black;" onmousedown="drawLines(event)"></canvas>
+
+</body>
+</html>

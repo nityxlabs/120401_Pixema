@@ -1,0 +1,693 @@
+<html>
+<head>
+<title>Lunar.Control.Room.3</title>
+<link rel="stylesheet" type="text/css" href="LunarRoomCSS.css" />
+<script src="jquery.js"></script> 
+<script type="text/javascript">
+var isIE=document.all;
+//mouse movement
+var xOrig=0;
+var yOrig=0;
+//browserSize
+var widthOfWindow;	//for window dimensions - width
+var heightOfWindow;	//for window dimensions - height
+//setMovie
+var counter=0;
+var prevX=0;
+var prevY=0;
+//frameTracker
+var frameNum=0;
+//modifyArrayString
+var largestRow=0;
+var largestCol=0;
+var arrayString="";
+//addObject
+var countObj=0;
+var objElement;
+//drag objects
+var objElement;
+var isdown;
+//recordIn2DArray()
+var actionArray;
+//playMovie
+var step;
+var movieTimer;
+//playMovie2
+var getMS;
+var frameDiv;
+
+function browseAdj(x)
+{
+var object;
+	 if(document.getElementById){	//Mozilla
+                  object=document.getElementById(x);
+            }else if(document.all){		//Internet Explorer
+                  object=document.all[x];
+            }else if(document.layers){		//Netscape
+                  object=document.layers[x];
+            }          
+return object;
+}
+
+function browserSize() {
+	  var myWidth = 0, myHeight = 0;
+	  if( typeof( window.innerWidth ) == 'number' ) {   //Non-IE
+	    myWidth = window.innerWidth;
+	    myHeight = window.innerHeight;
+	    myXScroll = window.pageXOffset;
+	    myYScroll = window.pageYOffset;
+	  } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+	    //IE 6+ in 'standards compliant mode'
+	    myWidth = document.documentElement.clientWidth;
+	    myHeight = document.documentElement.clientHeight;
+	    myXScroll = document.documentElement.scrollLeft;
+	    myYScroll = document.documentElement.scrollTop;
+	  } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {  //IE 4 compatible
+	    myWidth = document.body.clientWidth;
+	    myHeight = document.body.clientHeight;
+	    myXScroll = document.body.scrollLeft;
+	    myYScroll = document.body.scrollTop;
+	  }
+	  widthOfWindow=myWidth;
+	  heightOfWindow=myHeight;
+	  currentXScroll=myXScroll;
+	  currentYScroll=myYScroll;
+	  //window.alert( 'Width = ' + myWidth );
+	  //window.alert( 'Height = ' + myHeight );  
+	}
+
+
+function mouseOrig(x)
+{
+	if(browseAdj(x))
+	{
+		xOrig = window.event.x;
+		yOrig = window.event.y;		
+	}
+	else //works for Netscape & Mozilla
+	{
+		xOrig = x.pageX;
+		yOrig = x.pageY;	
+	}
+	getNodeName=isIE ? x.srcElement : x.target;
+	//prevents highlighting when dragging
+	//if nodeName is an input or textarea, then user will be able to type in it
+	//else if nodeName is another type (i.e. div), then return is false, thus preventing highlighting when dragging
+	if(getNodeName.nodeName=="INPUT" || getNodeName.nodeName=="TEXTAREA"){return true;}
+	else {return false;}
+}
+document.onmousedown=mouseOrig;
+
+function closePopUps()
+{
+	browseAdj("popUpArea").innerHTML="";
+}
+
+function clearJSEvents()
+{
+	document.onmouseup=function(){}
+	document.onmousemove=function(){}
+	document.onclick=function(){}
+	document.onmousedown=mouseOrig;
+}
+
+function randomColorGenerator()
+{
+	var colorString;
+	var colorR=Math.floor(Math.random()*255);
+	var colorB=Math.floor(Math.random()*255);
+	var colorG=Math.floor(Math.random()*255);
+	colorString="rgb("+colorR+","+colorB+","+colorG+")";
+	return colorString;
+}
+
+function randomlyPlace()
+{
+	browserSize();
+	//randomly generate numbers within size of screen to place person
+	var randomX=Math.random()*widthOfWindow;
+	var randomY=Math.random()*heightOfWindow;
+	//position person in random location
+	browseAdj("person1").style.left=randomX;
+	browseAdj("person1").style.top=randomY;	
+}
+
+//DATA MANAGEMENT
+//create object
+function Bot(position,talk,change)
+{
+	this.position=position;
+	this.talk=talk;
+	this.change=change;
+}
+
+function frameTracker(step)
+{
+	//record frame # currently being viewed
+	if(step==1){frameNum=frameNum-1;}
+	else if(step==2){frameNum=frameNum+1;}
+	if(frameNum<0){frameNum=0;}
+	browseAdj("displayFrameNum").innerHTML="&nbsp;"+frameNum+"&nbsp;";
+	browseAdj("actFrameNum").innerHTML="&nbsp;"+frameNum+"&nbsp;";
+}
+
+//after changes made to a specific frame, events are recorded in a string
+//row = frame #, column = object #
+function modifyArrayString(objNum,frameNum,actionStr)
+{
+	//row=frame, & column=objNum
+	if(frameNum>=largestRow){largestRow=frameNum+1;}
+	if(objNum>=largestCol){largestCol=objNum+1;}
+	//save as string - frameNum:objNum:actionString
+	//actionString=action type, actual action, change state
+	arrayString+=frameNum+":"+objNum+":"+actionStr+";";
+	browseAdj("arrayText").innerHTML=arrayString;
+}
+
+function addAction(e)
+{
+	actElement=isIE ? e.srcElement : e.target;
+	var actionType=actElement.getAttribute("actionType");
+	var countObj=actElement.getAttribute("objNum");
+	var objID=actElement.getAttribute("id");
+	var actionStr;
+	//get the type of action & create action string
+	if(actionType==1)		//1 is for talking
+	{
+		//create & save action string
+		actionStr="t+,"+browseAdj("dialogBox").value+",t+";
+		//create talk bubble
+		showTalkBubble(countObj,browseAdj("dialogBox").value);
+	}
+	else if(actionType==2)		//2 is for removing talking bubble
+	{}	
+	//send to array string
+	closePopUps();
+	modifyArrayString(countObj,frameNum,actionStr);
+}
+
+function convertToArray()
+{
+	var copyOfArrayStr,frameDiv,getEleStr,getRow,getCol,getVal;
+	//create array with appropriate size - largestRow & largestCol
+	actionArray=new Array(largestRow);
+	for(i=0;i<largestRow;i++)
+	{
+		actionArray[i]=new Array(largestCol);
+	}
+	//initiate array
+	for(a=0;a<largestRow;a++)
+	{
+		for(b=0;b<largestCol;b++)
+		{
+			actionArray[a][b]=new Bot("","","");
+		}
+	}
+	
+	//add values to array
+	copyOfArrayStr=arrayString;
+	frameDiv=copyOfArrayStr.indexOf(";");
+	while(frameDiv && (copyOfArrayStr.length>1))
+	{
+		getEleStr=copyOfArrayStr.substr(0,frameDiv);
+		copyOfArrayStr=copyOfArrayStr.substr(frameDiv+1);
+		frameDiv=copyOfArrayStr.indexOf(";");
+		colonArray=getEleStr.split(":");
+		//get row
+		getRow=colonArray[0];
+		//get column
+		getCol=colonArray[1];
+		//get value
+		getVal=colonArray[2];
+		//splice getVal
+		valueArray=getVal.split(",");
+		if(valueArray[0]=="m+"){
+			actionArray[getRow][getCol].change+=valueArray[0];
+			actionArray[getRow][getCol].position=valueArray[1];
+		}
+		else if(valueArray[0]=="t+"){
+			actionArray[getRow][getCol].change+=valueArray[0];
+			actionArray[getRow][getCol].talk=valueArray[1];
+		}
+	}
+
+	/*
+	//fill array so no "null" values remain
+	//STEP 1 - replace all initial "null" values with another value. Also record first set
+	var replaceNullVal="m,-100,-100";
+	var replaceArray=new Array();
+	for(b=0;b<actionArray[0].length;b++)
+	{
+		if(actionArray[0][b]==null){actionArray[0][b]=replaceNullVal;}
+		replaceArray[b]=actionArray[0][b];
+	}
+	//STEP 2 - replace all null values in the array 
+	for(c=0;c<actionArray.length;c++)
+	{
+		for(d=0;d<actionArray[c].length;d++)
+		{
+			 if(actionArray[c][d]==null){actionArray[c][d]=replaceArray[d];}
+			 else{replaceArray[d]=actionArray[c][d];}
+		}
+	}
+	*/
+	
+	//display array
+	var displayArray="<table border='1'>";
+	var objText="";
+	for(x=0;x<largestRow;x++)
+	{
+		displayArray+="<tr><td>"+x+"</td>";
+		for(y=0;y<largestCol;y++)
+		{
+			//alert("loop1: "+x+" | "+y);
+			objText="Pos: "+actionArray[x][y].position+" | Talk: "+actionArray[x][y].talk+" | change: "+actionArray[x][y].change;
+			displayArray+="<td>"+objText+"</td>";
+		}
+		displayArray+="</tr>";
+	}
+	displayArray+="</table>";
+	browseAdj("TESTArray").innerHTML=displayArray;
+}
+
+//DECISIONS FUNCTIONS
+//make decision on clicks
+function decisionMaker(e)
+{
+	var ele=isIE ? e.srcElement : e.target;
+	//if on an existing object
+	if(ele.nodeName=="HTML"){addObject(e);}
+}
+
+function popUpActionBox(e)
+{
+	objElement=isIE ? e.srcElement : e.target;
+	mouseOrig(e);
+	//make popup box
+	var pUAB="<div id='actionBox' objNum='"+objElement.getAttribute("objNum")+"' style='position:absolute;left:"+xOrig+";top:"+yOrig+";z-index:10;opacity:0;background-color:#999999;padding:10px;'>";
+	pUAB+="<span onclick='closePopUps()'>Close</span>";
+	pUAB+="<input id='dialogBox' type='text'/><button objNum='"+objElement.getAttribute("objNum")+"' actionType='1' onclick='addAction(event)'>Talk</button></div>";
+	//display box in popUp area
+	browseAdj("popUpArea").innerHTML=pUAB;
+	$(function(event){
+		$("#actionBox").animate({opacity:1,top:'-=25'});	
+	});
+}
+
+
+//ACTIONS & DATA IMPLEMENTATION
+//add objects
+function addObject(e)
+{
+	//Save data
+	//create action string: move-xPosition,yPosition
+	var actionStr="m+,"+xOrig+"~"+yOrig;
+	//add data to ArrayString
+	modifyArrayString(countObj,frameNum,actionStr);
+
+	//show objects
+	//get position
+	mouseOrig(e);
+	//create object with position & random color
+	var objID="obj"+countObj;
+	var randomColor=randomColorGenerator();
+	var newObj="<div id='"+objID+"' objNum="+countObj+" class='personIcon' onmousedown='dragObject(event)' style='position:absolute;left:"+xOrig+";top:"+yOrig+";background-color:"+randomColor+";'>&nbsp;</div>";
+	browseAdj("movieEnvironment").innerHTML+=newObj;
+	//increment countObj
+	countObj++;
+}
+
+//move object
+function dragObject(e)
+{
+	isdown=true;
+	objElement=isIE ? e.srcElement : e.target;
+	var countObj=objElement.getAttribute("objNum");
+	//record original position
+	var iX=parseInt(objElement.style.left);
+  var iY=parseInt(objElement.style.top);
+	//onmousemove
+	document.onmousemove=moveObject;
+	//onmouseup
+	document.onmouseup=function()
+  {
+		isdown=false;
+		clearJSEvents();
+		//save changes to move
+		var xPos=parseInt(objElement.style.left);
+		var yPos=parseInt(objElement.style.top);
+		//if object didn't move that much, then show pop up menu
+		var changeX=Math.abs(xPos-iX);
+		var changeY=Math.abs(yPos-iY);
+		if(changeX<=3 && changeY<=3){
+			popUpActionBox(e);
+		}
+		else{
+			var actionStr="m+,"+xPos+"~"+yPos;
+			//add data to ArrayString
+			modifyArrayString(countObj,frameNum,actionStr);
+		}
+  }
+}
+
+function moveObject(e){
+	  if (!isdown) return;
+	  //objElement.style.left=isIE ? event.clientX-offsetx : e.clientX-offsetx; 
+	  //objElement.style.top=isIE ? event.clientY-offsety : e.clientY-offsety;
+	  objElement.style.left=isIE ? event.clientX : e.clientX; 
+	  objElement.style.top=isIE ? event.clientY : e.clientY;
+	  return false;  
+}
+
+function showTalkBubble(objNum,dialog)
+{
+	var objID="obj"+objNum;
+	//get position of pop up box
+	var xPos=parseInt(browseAdj(objID).style.left);
+	var yPos=parseInt(browseAdj(objID).style.top);
+	//create talk bubble
+	var talkID=objID+"talk";
+	alert("aA3: "+dialog);
+	var talkBubble="<div id='"+talkID+"' objNum='"+objNum+"' style='position:absolute;left:"+xPos+";top:"+yPos+";z-index:10;background-color:#999999;padding:10px;'>";
+	talkBubble+=dialog;
+	talkBubble+="</div>";
+	//insert talk bubble
+	browseAdj("movieEnvironment").innerHTML+=talkBubble;
+	var JQtalkID="#"+talkID;
+	$(function(event){
+		$(JQtalkID).animate({opacity:1,top:'-=25'});	
+	});
+}
+
+
+//MOVIE FUNCTIONS
+function initiateSetMovie()
+{
+	document.body.setAttribute("onclick","decisionMaker(event)");
+	frameTracker(0);
+}
+
+function showFrameAction(step)
+{
+	if(step==1){frameNum=frameNum-1;}
+	else if(step==2){frameNum=frameNum+1;}
+	if(frameNum<0){frameNum=0;}
+	browseAdj("displayFrameNum").innerHTML="&nbsp;"+frameNum+"&nbsp;";
+	browseAdj("actFrameNum").innerHTML="&nbsp;"+frameNum+"&nbsp;";
+	if(arrayString!=""){playByFrame();}
+}
+
+function playByFrame()
+{
+	convertToArray();
+	//alert("pBF1: "+actionArray[frameNum].length);
+	var objID,JQobjID,elementStr,colonArray;
+	var array1,array2;
+	//access array with actions (row=frame, col=obj)
+	for(y=0;y<actionArray[frameNum].length;y++)
+	{
+		objID="obj"+y;
+		JQobjID="#"+objID;
+		//check for changes
+		if(actionArray[frameNum][y].change!="")
+		{
+			array1=actionArray[frameNum][y].change.split(",");
+			for(a=0;a<array1.length;a++)
+			{
+				if(array1[a].search("m"))
+				{
+					array2=actionArray[frameNum][y].position.split("~");
+					var xPos=parseInt(array2[0]);
+					var yPos=parseInt(array2[1]);
+					$(function(event){
+						$(JQobjID).animate({left:xPos,top:yPos});	
+					});
+				}
+				else if(array1[a].search("t"))
+				{
+					//get dialog
+					//display dialog
+					//get dialogue
+					var talkDialogue=actionArray[frameNum][y].talk;
+					//get position of bot
+					var xBot=parseInt(browseAdj(objID).style.left);
+					var yBot=parseInt(browseAdj(objID).style.top);
+					//create the talk bubble
+					var talkID=objID+"talk";
+					var talkBubble="<div id='"+talkID+"' objNum='"+y+"' style='position:absolute;left:"+xBot+";top:"+yBot+";z-index:10;background-color:#EEEEEE;padding:10px;'>";
+					talkBubble+=talkDialogue;
+					talkBubble+="</div>";
+					browseAdj("movieEnvironment").innerHTML+=talkBubble;
+					var JQtalkID="#"+talkID;
+					$(function(event){
+						$(JQtalkID).animate({opacity:1,top:'-=50'});	
+					});
+				}
+			}
+		}
+
+
+		/*
+		if(actionArray[frameNum][y]!=null)
+		{
+		//get object
+		objID="obj"+y;
+		//get string within element
+		elementStr=actionArray[frameNum][y];
+		//sparse the string
+		colonArray=elementStr.split(",");
+		//see which action should be taken
+		if(colonArray[0]=="m")
+		{
+			//move the object
+			var xPos=parseInt(colonArray[1]);
+			var yPos=parseInt(colonArray[2]);
+			var currX=parseInt(browseAdj(objID).style.left);
+			var currY=parseInt(browseAdj(objID).style.top);
+			//alert("pBF2: "+xPos+" | "+yPos+" | "+currX+" | "+currY);
+			var xMove=xPos-currX;
+			var yMove=yPos-currY;
+			JQobjID="#"+objID;
+			$(function(event){
+				$(JQobjID).animate({left:xPos,top:yPos});	
+			});
+		}
+		else if(colonArray[0]=="t")
+		{
+			//get dialogue
+			var talkDialogue=colonArray[1];
+			//create the talk bubble
+			var talkID=objID+"talk";
+			var talkBubble="<div id='"+talkID+"' objNum='"+y+"' style='position:absolute;left:"+xOrig+";top:"+yOrig+";z-index:10;background-color:#EEEEEE;padding:10px;'>";
+			talkBubble+=talkDialogue;
+			talkBubble+="</div>";
+			browseAdj("movieEnvironment").innerHTML+=talkBubble;
+			var JQtalkID="#"+talkID;
+			$(function(event){
+				$(JQtalkID).animate({opacity:1,top:'-=50'});	
+			});
+		}
+		}
+		*/
+	}
+}
+
+function playByFrame2()
+{
+	convertToArray();
+	//alert("pBF1: "+actionArray[frameNum].length);
+	var objID,JQobjID,elementStr,colonArray;
+	//access array with actions (row=frame, col=obj)
+	for(y=0;y<actionArray[frameNum].length;y++)
+	{
+		if(actionArray[frameNum][y]!=null)
+		{
+		//get object
+		objID="obj"+y;
+		//get string within element
+		elementStr=actionArray[frameNum][y];
+		//sparse the string
+		colonArray=elementStr.split(",");
+		//see which action should be taken
+		if(colonArray[0]=="m")
+		{
+			//move the object
+			var xPos=parseInt(colonArray[1]);
+			var yPos=parseInt(colonArray[2]);
+			var currX=parseInt(browseAdj(objID).style.left);
+			var currY=parseInt(browseAdj(objID).style.top);
+			//alert("pBF2: "+xPos+" | "+yPos+" | "+currX+" | "+currY);
+			var xMove=xPos-currX;
+			var yMove=yPos-currY;
+			JQobjID="#"+objID;
+			$(function(event){
+				$(JQobjID).animate({left:xPos,top:yPos});	
+			});
+		}
+		else if(colonArray[0]=="t")
+		{
+			//get dialogue
+			var talkDialogue=colonArray[1];
+			//create the talk bubble
+			var talkID=objID+"talk";
+			var talkBubble="<div id='"+talkID+"' objNum='"+y+"' style='position:absolute;left:"+xOrig+";top:"+yOrig+";z-index:10;background-color:#EEEEEE;padding:10px;'>";
+			talkBubble+=talkDialogue;
+			talkBubble+="</div>";
+			browseAdj("movieEnvironment").innerHTML+=talkBubble;
+			var JQtalkID="#"+talkID;
+			$(function(event){
+				$(JQtalkID).animate({opacity:1,top:'-=50'});	
+			});
+		}
+		}
+	}
+}
+
+function setMovie(e)
+{
+	var button=isIE ? e.srcElement : e.target;
+	//alert(button+" | "+button.getAttribute("stopEdit"));
+	if(button.getAttribute("stopEdit")!="1")
+	{
+	var counterBlock;
+	//get click position
+	mouseOrig(e);
+	//subtract from previous click position
+	var nextX=xOrig-prevX;
+	var nextY=yOrig-prevY;
+	prevX=xOrig;
+	prevY=yOrig;
+	//save as string
+	browseAdj("movieScript").innerHTML+=nextX+","+nextY+";";
+	//place counterBlock
+	counterBlock="<div style='position:absolute;left:"+xOrig+";top:"+yOrig+";'>"+counter+"</div>";
+	browseAdj("MSLandmarks").innerHTML+=counterBlock;
+	counter++;
+	}
+	else
+	{
+		stopEditingMovie();
+	}
+}
+
+function stopEditingMovie()
+{
+	var objID,JQobjID,xPos,yPos,xMove,yMove;
+	//document.body.removeAttribute("onclick");
+	document.body.setAttribute("onclick","");
+	//clear movieEnvironment
+	for(a=0;a<largestCol;a++)
+	{
+		objID="obj"+a;
+		xPos=parseInt(browseAdj(objID).style.left);
+		xMove=-100-xPos;
+		yPos=parseInt(browseAdj(objID).style.top);
+		yMove=-100-yPos;
+		JQobjID="#"+objID;
+		$(function(event){
+			$(objID).animate({left:xMove,top:yMove});	
+		});
+	}
+}
+
+function playMovie2()
+{
+	//get movie script
+	getMS=browseAdj("movieScript").innerHTML;
+	//play each frame - set time out & action
+	frameDiv=getMS.indexOf(";");
+	movieTimer=setInterval("playFrame2()",500);
+}
+
+function playFrame2()
+{
+	if(frameDiv && (getMS.length>1))
+	{
+		step=getMS.substr(0,frameDiv);
+		//modify string
+		getMS=getMS.substr(frameDiv+1);
+		frameDiv=getMS.indexOf(";");
+		//set time out
+		var commaIndex=step.indexOf(",");
+		var newX=step.substr(0,commaIndex);
+		var newY=step.substr(commaIndex+1);
+		//alert("pF1: "+newX+" | "+newY);
+		var xMove="+="+newX;
+		var yMove="+="+newY;
+		$(function(event){
+			$("#person1").animate({left:xMove,top:yMove});	
+		});
+	}
+	else
+	{
+		clearInterval(movieTimer);
+	}
+}
+
+/*
+function playMovie()
+{
+	var frameDiv;
+	//get movie script
+	var getMS=browseAdj("movieScript").innerHTML;
+	//play each frame - set time out & action
+	frameDiv=getMS.indexOf(";");
+	while(frameDiv && (getMS.length>1))
+	{
+		//get the part of the script
+		step=getMS.substr(0,frameDiv);
+		//modify string
+		getMS=getMS.substr(frameDiv+1);
+		frameDiv=getMS.indexOf(";");
+		//set time out
+		playFrame();
+		//movieTimer=setTimeout("playFrame()",500);
+		alert(getMS+" | "+frameDiv+" ||: "+step);
+	}
+}
+
+function playFrame()
+{
+	alert("pF0:");
+	//break into x & y strings
+	var commaIndex=step.indexOf(",");
+	var newX=step.substr(0,commaIndex);
+	var newY=step.substr(commaIndex+1);
+	alert("pF1: "+newX+" | "+newY);
+	var xMove="+="+newX;
+	var yMove="+="+newY;
+	$(function(event){
+		$("#person1").animate({left:xMove,top:yMove});	
+	});
+	clearTimeout(movieTimer);
+}
+*/
+</script>
+</head>
+<body>
+<span id="popUpArea"></span>
+<span id="movieScript" style="display:block;"></span>
+<span id="MSLandmarks" style="position:relative;z-index:2;"></span>
+<span id="movieEnvironment"></span>
+<br/><br/>
+<span id="arrayText"></span><br/>
+<span id="TESTArray"></span>
+
+<table>
+<tr><td valign="top">
+<button onclick="initiateSetMovie()" noEdit="y" style="position:relative;z-index:5;">Film Movie</button>&nbsp;&nbsp;&nbsp;
+<button stopEdit="1" noEdit="y" style="position:relative;z-index:5;" onclick="stopEditingMovie()">Finish Movie</button>&nbsp;&nbsp;&nbsp;
+<br/>
+<span id="frameControl"><button onclick="frameTracker(1)" noEdit="y"><</button><span id="displayFrameNum"></span><button onclick="frameTracker(2)" noEdit="y">></button></span>
+</td>
+<td valign="top">
+<button onclick="playMovie2()" style="position:relative;z-index:5;">Play</button>&nbsp;&nbsp;&nbsp;
+<button onclick="convertToArray()" style="position:relative;z-index:5;">convert to array</button>&nbsp;&nbsp;&nbsp;
+<br/>
+<span id="frameControl"><button onclick="showFrameAction(1)" noEdit="y"><</button><span id="actFrameNum"></span><button onclick="showFrameAction(2)" noEdit="y">></button></span>
+</td>
+</tr>
+</table>
+
+</body>
+</html>

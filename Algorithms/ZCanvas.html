@@ -1,0 +1,211 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="LunarRoomCSS3.css" />
+<style type="text/css">
+
+.objCircle {
+	font:10px Rockwell, "Courier New", Courier, Georgia, serif;
+	color:#EEEEEE;
+	text-align:center;
+	width:26px;
+	height:26px;
+	background: red;
+	-moz-border-radius: 13px;
+	-webkit-border-radius: 13px;
+	border-radius: 13px;
+	cursor:pointer;
+}
+
+.objSquare {
+	font:10px Rockwell, "Courier New", Courier, Georgia, serif;
+	color:#EEEEEE;
+	text-align:center;
+	width:26px;
+	height:26px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	cursor:pointer;
+}
+
+.objTrapezoidUp {
+	font:10px Rockwell, "Courier New", Courier, Georgia, serif;
+	color:#EEEEEE;
+	text-align:center;
+	width:26px;
+	height:0;
+	border-left:13px solid transparent;
+	border-right:13px solid transparent;
+	border-bottom:26px solid red;
+	cursor:pointer;
+}
+
+.objTrapezoidDown {
+	font:10px Rockwell, "Courier New", Courier, Georgia, serif;
+	color:#EEEEEE;
+	text-align:center;
+	width:13px;
+	height:0;
+	border-left:13px solid transparent;
+	border-right:13px solid transparent;
+	border-top:26px solid red;
+	cursor:pointer;
+}
+
+.objTriDown {
+	font:10px Rockwell, "Courier New", Courier, Georgia, serif;
+	color:#EEEEEE;
+	text-align:center;
+	width:0;
+	height:0;
+	border-left:13px solid transparent;
+	border-right:13px solid transparent;
+	border-top:26px solid red;
+	cursor:pointer;
+}
+
+.objTriUp {
+	font:10px Rockwell, "Courier New", Courier, Georgia, serif;
+	color:#EEEEEE;
+	text-align:center;
+	width:0;
+	height:0;
+	border-left:13px solid transparent;
+	border-right:13px solid transparent;
+	border-bottom:26px solid red;
+	cursor:pointer;
+}
+
+.talkbubble {
+   width: 120px; 
+   height: 80px; 
+   background: red;
+   position: relative;
+   -moz-border-radius:    10px; 
+   -webkit-border-radius: 10px; 
+   border-radius:         10px;
+}
+.talkbubble:before {
+   content:"";
+   position: absolute;
+   left: 20px;
+   top: 80px;
+   width: 0;
+   height: 0;
+   border-left: 5px solid transparent;
+   border-right: 5px solid transparent;
+   border-top: 10px solid red;
+}
+
+
+.talkbubble2 {
+   width: 120px; 
+   height: 80px; 
+   background: red;
+   position: relative;
+   -moz-border-radius:    10px; 
+   -webkit-border-radius: 10px; 
+   border-radius:         10px;
+}
+.talkBubbleArrow {
+   position:relative;
+   left:20px;
+   width: 0;
+   height: 0;
+   border-left: 10px solid transparent;
+   border-right: 10px solid transparent;
+   border-top: 20px solid blue;
+}
+.talkBoxArrow {
+   position:relative;
+   left: 7px;
+   width: 0;
+   height: 0;
+   border-left: 5px solid transparent;
+   border-right: 5px solid transparent;
+   border-top: 10px solid #5CA4F5;
+}
+
+
+.horizontalPace
+{
+animation:sideToSide 2s infinite;
+-moz-animation:sideToSide 2s infinite; /* Firefox */
+-webkit-animation:sideToSide 2s infinite; /* Safari and Chrome */
+}
+
+@keyframes sideToSide
+{
+0%    {padding:0 0;}
+50%   {padding:0 20px;}
+100%  {padding:0 0;}
+}
+@-moz-keyframes sideToSide /* Firefox */
+{
+0%    {padding:0 0;}
+50%   {padding:0 20px;}
+100%  {padding:0 0;}
+}
+@-webkit-keyframes sideToSide /* Safari and Chrome */
+{
+0%    {padding:0 0;}
+50%   {padding:0 20px;}
+100%  {padding:0 0;}
+}
+</style>
+<script type="text/javascript">
+function browseAdj(x)
+{
+var object;
+	 if(document.getElementById){	//Mozilla
+                  object=document.getElementById(x);
+            }else if(document.all){		//Internet Explorer
+                  object=document.all[x];
+            }else if(document.layers){		//Netscape
+                  object=document.layers[x];
+            }          
+return object;
+}
+
+function addObj()
+{
+	var botID="1";
+	var botNum="1";
+	var objID="1";
+	var talkID="1";
+	var dialogID="1";
+	var botX="300";
+	var botY="500";
+	var newObj="<table id='"+botID+"' objNum='"+botNum+"' name='bot' style='position:absolute;left:"+botX+";top:"+botY+";z-index:5;'><tr>";
+	newObj+="<td id='"+objID+"' objNum="+botNum+" class='personIcon' onmouseover='pushUpZ(event)' onmousedown='dragObject(event)' style='background-color:#4567AE;'>&nbsp;</td>";
+	newObj+="<td id='"+talkID+"' style='position:relative;left:-15px;top:-25px;z-index:6;opacity:1;' objNum="+botNum+"><div class='talkBox' id='"+dialogID+"' objNum="+botNum+">Hello world</div><div class='talkBoxArrow'></div></td>";
+	newObj+="</tr></table>";
+
+	browseAdj("testPopUp").innerHTML=newObj;	
+}
+</script>
+</head>
+<body onload="addObj()">
+<span id="testPopUp"></span>
+
+<div style="width:50px;height:0;border-left:25px solid transparent;border-right:25px solid transparent;border-top:50px solid red;"></div>
+<br/>
+<div class="objTriDown" style="border-top:26px solid #4EEAD5;"></div>
+<br/>
+<div class="objTriUp"></div>
+<br/>
+<div class="objCircle"></div>
+<br/>
+<div class="objTrapezoidUp"></div>
+<br/>
+<div class="objTrapezoidDown"></div>
+<div style="position:absolute;left:200px;top:200px;" class="horizontalPace">feaweg</div>
+<br/>
+<div class="talkBubble"></div>
+<br/>
+<div class="talkBubble2"></div>
+<div class="talkBubbleArrow"></div>
+
+</body>
+</html>
+
+

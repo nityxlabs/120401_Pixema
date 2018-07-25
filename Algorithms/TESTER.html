@@ -1,0 +1,28 @@
+<html>
+<head>
+<script type="text/javascript">
+function browseAdj(x)
+{
+var object;
+	 if(document.getElementById){	//Mozilla
+                  object=document.getElementById(x);
+            }else if(document.all){		//Internet Explorer
+                  object=document.all[x];
+            }else if(document.layers){		//Netscape
+                  object=document.layers[x];
+            }          
+return object;
+}
+
+function tester()
+{
+	if(browseAdj("test2")){alert("True");}
+	else{alert("false");}
+}
+</script>
+</head>
+<body>
+<button onclick="tester()">test</button>
+<span id='test1'>Hey</span>
+</body>
+</html>

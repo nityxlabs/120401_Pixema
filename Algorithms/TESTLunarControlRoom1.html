@@ -1,0 +1,231 @@
+<html>
+<head>
+<title>Lunar.Control.Room.1</title>
+<link rel="stylesheet" type="text/css" href="LunarRoomCSS.css" />
+<script src="jquery.js"></script> 
+<script type="text/javascript">
+var isIE=document.all;
+//mouse movement
+var xOrig=0;
+var yOrig=0;
+
+//browserSize
+var widthOfWindow;	//for window dimensions - width
+var heightOfWindow;	//for window dimensions - height
+
+//setMovie
+var counter=0;
+var prevX=0;
+var prevY=0;
+
+//playMovie
+var step;
+var movieTimer;
+
+//playMovie2
+var getMS;
+var frameDiv;
+
+function browseAdj(x)
+{
+var object;
+	 if(document.getElementById){	//Mozilla
+                  object=document.getElementById(x);
+            }else if(document.all){		//Internet Explorer
+                  object=document.all[x];
+            }else if(document.layers){		//Netscape
+                  object=document.layers[x];
+            }          
+return object;
+}
+
+function browserSize() {
+	  var myWidth = 0, myHeight = 0;
+	  if( typeof( window.innerWidth ) == 'number' ) {   //Non-IE
+	    myWidth = window.innerWidth;
+	    myHeight = window.innerHeight;
+	    myXScroll = window.pageXOffset;
+	    myYScroll = window.pageYOffset;
+	  } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+	    //IE 6+ in 'standards compliant mode'
+	    myWidth = document.documentElement.clientWidth;
+	    myHeight = document.documentElement.clientHeight;
+	    myXScroll = document.documentElement.scrollLeft;
+	    myYScroll = document.documentElement.scrollTop;
+	  } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {  //IE 4 compatible
+	    myWidth = document.body.clientWidth;
+	    myHeight = document.body.clientHeight;
+	    myXScroll = document.body.scrollLeft;
+	    myYScroll = document.body.scrollTop;
+	  }
+	  widthOfWindow=myWidth;
+	  heightOfWindow=myHeight;
+	  currentXScroll=myXScroll;
+	  currentYScroll=myYScroll;
+	  //window.alert( 'Width = ' + myWidth );
+	  //window.alert( 'Height = ' + myHeight );  
+	}
+
+
+function mouseOrig(x)
+{
+	if (browseAdj(x))
+	{
+		xOrig = window.event.x;
+		yOrig = window.event.y;		
+	}
+	else //works for Netscape & Mozilla
+	{
+		xOrig = x.pageX;
+		yOrig = x.pageY;	
+	}
+}
+
+function randomlyPlace()
+{
+	browserSize();
+	//randomly generate numbers within size of screen to place person
+	var randomX=Math.random()*widthOfWindow;
+	var randomY=Math.random()*heightOfWindow;
+	//position person in random location
+	browseAdj("person1").style.left=randomX;
+	browseAdj("person1").style.top=randomY;	
+}
+
+function movePerson(e)
+{
+	mouseOrig(e);
+	//find object's current position
+	var currPosX=parseInt(browseAdj("person1").style.left);
+	var currPosY=parseInt(browseAdj("person1").style.top);
+	var newX=xOrig-currPosX;
+	var newY=yOrig-currPosY;
+	var xMove="+="+newX;
+	var yMove="+="+newY;
+	$(function(event){
+		$("#person1").animate({left:xMove,top:yMove});	
+	});
+}
+
+//MOVIE FUNCTIONS
+function initiateSetMovie()
+{
+	document.body.setAttribute("onclick","setMovie(event)");
+}
+
+function setMovie(e)
+{
+	var button=isIE ? e.srcElement : e.target;
+	//alert(button+" | "+button.getAttribute("stopEdit"));
+	if(button.getAttribute("stopEdit")!="1")
+	{
+	var counterBlock;
+	//get click position
+	mouseOrig(e);
+	//subtract from previous click position
+	var nextX=xOrig-prevX;
+	var nextY=yOrig-prevY;
+	prevX=xOrig;
+	prevY=yOrig;
+	//save as string
+	browseAdj("movieScript").innerHTML+=nextX+","+nextY+";";
+	//place counterBlock
+	counterBlock="<div style='position:absolute;left:"+xOrig+";top:"+yOrig+";'>"+counter+"</div>";
+	browseAdj("MSLandmarks").innerHTML+=counterBlock;
+	counter++;
+	}
+	else
+	{
+		stopEditingMovie();
+	}
+}
+
+function stopEditingMovie()
+{
+	//document.body.removeAttribute("onclick");
+	document.body.setAttribute("onclick","");
+}
+
+function playMovie2()
+{
+	//get movie script
+	getMS=browseAdj("movieScript").innerHTML;
+	//play each frame - set time out & action
+	frameDiv=getMS.indexOf(";");
+	movieTimer=setInterval("playFrame2()",500);
+}
+
+function playFrame2()
+{
+	if(frameDiv && (getMS.length>1))
+	{
+		step=getMS.substr(0,frameDiv);
+		//modify string
+		getMS=getMS.substr(frameDiv+1);
+		frameDiv=getMS.indexOf(";");
+		//set time out
+		var commaIndex=step.indexOf(",");
+		var newX=step.substr(0,commaIndex);
+		var newY=step.substr(commaIndex+1);
+		//alert("pF1: "+newX+" | "+newY);
+		var xMove="+="+newX;
+		var yMove="+="+newY;
+		$(function(event){
+			$("#person1").animate({left:xMove,top:yMove});	
+		});
+	}
+	else
+	{
+		clearInterval(movieTimer);
+	}
+}
+
+/*
+function playMovie()
+{
+	var frameDiv;
+	//get movie script
+	var getMS=browseAdj("movieScript").innerHTML;
+	//play each frame - set time out & action
+	frameDiv=getMS.indexOf(";");
+	while(frameDiv && (getMS.length>1))
+	{
+		//get the part of the script
+		step=getMS.substr(0,frameDiv);
+		//modify string
+		getMS=getMS.substr(frameDiv+1);
+		frameDiv=getMS.indexOf(";");
+		//set time out
+		playFrame();
+		//movieTimer=setTimeout("playFrame()",500);
+		alert(getMS+" | "+frameDiv+" ||: "+step);
+	}
+}
+
+function playFrame()
+{
+	alert("pF0:");
+	//break into x & y strings
+	var commaIndex=step.indexOf(",");
+	var newX=step.substr(0,commaIndex);
+	var newY=step.substr(commaIndex+1);
+	alert("pF1: "+newX+" | "+newY);
+	var xMove="+="+newX;
+	var yMove="+="+newY;
+	$(function(event){
+		$("#person1").animate({left:xMove,top:yMove});	
+	});
+	clearTimeout(movieTimer);
+}
+*/
+</script>
+</head>
+<body>
+<span id="movieScript" style="display:block;"></span>
+<span id="MSLandmarks" style="position:relative;z-index:2;"></span>
+<button onclick="initiateSetMovie()" style="position:relative;z-index:5;">Film Movie</button>&nbsp;&nbsp;&nbsp;
+<button stopEdit="1" style="position:relative;z-index:5;">Finish Movie</button>&nbsp;&nbsp;&nbsp;
+<button onclick="playMovie2()" style="position:relative;z-index:5;">Play</button>
+<div id="person1" class="personIcon" style="position:absolute;left:0;top:0;z-index:3;background-color:#A5445E;">&nbsp;</div>
+</body>
+</html>

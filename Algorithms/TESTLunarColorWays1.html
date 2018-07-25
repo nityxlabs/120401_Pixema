@@ -1,0 +1,250 @@
+<html>
+<head>
+<title>Lunar.Color.Ways :: Part 1</title>
+<link rel="stylesheet" type="text/css" href="LunarRoomCSS.css" />
+<script src="jquery.js"></script> 
+<script type="text/javascript">
+var isIE=document.all;
+//mouse movement
+var xOrig=0;
+var yOrig=0;
+
+//browserSize
+var widthOfWindow;	//for window dimensions - width
+var heightOfWindow;	//for window dimensions - height
+
+//autonomously moving a person
+var movingTimer;
+var moveCounter=1;	//movePerson()
+var move2=0;		//movement2
+
+
+function browseAdj(x)
+{
+var object;
+	 if(document.getElementById){	//Mozilla
+                  object=document.getElementById(x);
+            }else if(document.all){		//Internet Explorer
+                  object=document.all[x];
+            }else if(document.layers){		//Netscape
+                  object=document.layers[x];
+            }          
+return object;
+}
+
+function browserSize() {
+	  var myWidth = 0, myHeight = 0;
+	  if( typeof( window.innerWidth ) == 'number' ) {   //Non-IE
+	    myWidth = window.innerWidth;
+	    myHeight = window.innerHeight;
+	    myXScroll = window.pageXOffset;
+	    myYScroll = window.pageYOffset;
+	  } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+	    //IE 6+ in 'standards compliant mode'
+	    myWidth = document.documentElement.clientWidth;
+	    myHeight = document.documentElement.clientHeight;
+	    myXScroll = document.documentElement.scrollLeft;
+	    myYScroll = document.documentElement.scrollTop;
+	  } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {  //IE 4 compatible
+	    myWidth = document.body.clientWidth;
+	    myHeight = document.body.clientHeight;
+	    myXScroll = document.body.scrollLeft;
+	    myYScroll = document.body.scrollTop;
+	  }
+	  widthOfWindow=myWidth;
+	  heightOfWindow=myHeight;
+	  currentXScroll=myXScroll;
+	  currentYScroll=myYScroll;
+	  //window.alert( 'Width = ' + myWidth );
+	  //window.alert( 'Height = ' + myHeight );  
+	}
+
+
+function mouseOrig(x)
+{
+	if (browseAdj(x))
+	{
+		xOrig = window.event.x;
+		yOrig = window.event.y;		
+	}
+	else //works for Netscape & Mozilla
+	{
+		xOrig = x.pageX;
+		yOrig = x.pageY;	
+	}
+}
+
+function randomlyPlace()
+{
+	browserSize();
+	//randomly generate numbers within size of screen to place person
+	var randomX=Math.random()*widthOfWindow;
+	var randomY=Math.random()*heightOfWindow;
+	//position person in random location
+	browseAdj("person1").style.left=randomX;
+	browseAdj("person1").style.top=randomY;	
+}
+
+function retrieveNodeArray(NameOfNode,NodeTrait,SpecificTrait)
+{
+	//NameOfNode - access the name attribute of the node
+	//NodeTrait - the attribute of interest for the node (getAttribute)
+	//SpecificTrait - the value the NodeTrait should match
+	//create array
+	var i;
+	var k=0;
+	var ArrayOfNodes=new Array();
+	var e=new Array();
+	var e=document.getElementsByName(NameOfNode);
+	//for(i in e)
+	for(i=0;i<e.length;i++)
+	{
+		if(e[i].getAttribute(NodeTrait)==SpecificTrait)
+		{
+			ArrayOfNodes[k]=e[i];
+			k++;			
+		}
+	}
+	return ArrayOfNodes;
+}
+
+function colorPath(startX,startY,endX,endY,unitName)
+{
+	var i,colorUnit,distX,distY,slope,xPos,yPos,unitID;
+	distX=endX-startX;
+	distY=endY-startY;
+	slope=distY/distX;
+	colorUnit="";
+	for(i=1;i<=distX;i++)
+	{
+		unitID=unitName+""+i;
+		colorUnit+="<div id='"+unitID+"' name='"+unitName+"' class='personIcon' style='position:absolute;left:"+startX+";top:"+startY+";background-color:#A5445E;'>&nbsp;</div>";
+	}
+	browseAdj("paintArea").innerHTML+=colorUnit;
+}
+
+function movePerson2()
+{	
+	browserSize();
+	var i,i2,jQID,xMove,yMove;
+	var initialID="person"+moveCounter+"0";
+	var personName="person"+moveCounter;
+	//randomly generate numbers within size of screen to place person
+	var randomX=Math.random()*widthOfWindow;
+	var randomY=Math.random()*heightOfWindow;
+	//find object's current position
+	var currPosX=parseInt(browseAdj(initialID).style.left);
+	var currPosY=parseInt(browseAdj(initialID).style.top);
+	//get distance between old & new points
+	var newX=randomX-currPosX;
+	var newY=randomY-currPosY;
+	//get slope of path
+	var slope=newY/newX;
+	//create a new div for each position along the path
+	colorPath(currPosX,currPosY,randomX,randomY,personName);
+	//this array will contain all the objects for this specific path
+	
+	var e=new Array();
+	var e=document.getElementsByName(personName);
+	for(i=0;i<e.length;i++)
+	{
+		jQID="#"+e[i].getAttribute("id");
+		xMove="+="+i;
+		i2=slope*i;
+		yMove="+="+i2;
+		//browseAdj("output").innerHTML+="xMove: "+xMove+" yMove:"+yMove;
+		//alert("mP2."+i+" id: "+jQID+" xMove: "+xMove+" yMove: "+yMove);
+		$(function(event){
+			//alert("mP2."+jQID);	
+			$(jQID).animate({left:xMove,top:yMove});
+		});			
+	}
+	/*
+	//reset last element
+	moveCounter++;
+	var lastElement=e.length-1;
+	var LEname="person"+moveCounter;
+	var LEID=LEname+"0";
+	e[lastElement].setAttribute("name",LEname);
+	e[lastElement].setAttribute("id",LEID);
+	*/	
+	//movingTimer=setTimeout("movePerson()",2000);
+}
+
+function movePerson()
+{
+	var xMove,yMove,maxMove;
+	maxMove=20;
+	browserSize();
+	//find object's current position
+	var currPosX=parseInt(browseAdj("person1").style.left);
+	var currPosY=parseInt(browseAdj("person1").style.top);
+	//place duplicate box in paint area
+	var colorUnit="<div class='personIcon' style='position:absolute;left:"+currPosX+";top:"+currPosY+";background-color:#A5445E;opacity:0.5;'>&nbsp;</div>";
+	browseAdj("paintArea").innerHTML+=colorUnit;
+	//randomly generate numbers within size of screen to place person
+	var randomX1=Math.random()*maxMove;
+	var randomX2=Math.random()*maxMove;
+	var randomY1=Math.random()*maxMove;
+	var randomY2=Math.random()*maxMove;
+	//these will be used for moving
+	var newX=randomX2-randomX1;
+	var newY=randomY2-randomY1;
+	
+	selectRandomMove=Math.round(Math.random()*2);
+	if(selectRandomMove==0){xMove="+="+newX;yMove="+=0";}
+	else if(selectRandomMove==1){xMove="+=0";yMove="+="+newY;}
+	else if(selectRandomMove==2){xMove="+="+newX;yMove="+="+newY;}
+	
+	$(function(event){
+		$("#person1").animate({left:xMove,top:yMove});	
+	});	
+	//movingTimer=setTimeout("movePerson()",2000);
+}
+
+function movement2()
+{
+	var direction;
+	if(move2==0)
+	{
+		direction="-=10";
+		move2=1;
+	}
+	else
+	{
+		direction="+=10";
+		move2=0;
+	}
+	$(function(event){
+		$("#person1").animate({left:direction}, function(){movement2();});
+		//$("#person1").animate({left:direction}, function(){setTimeout('movement2()',1000);});
+	});	
+}
+
+function restartMovePerson()
+{
+	movingTimer=setInterval('movePerson()',800);
+}
+
+function stopPerson()
+{
+	clearInterval(movingTimer);
+}
+
+function initialFunctions()
+{
+	randomlyPlace();
+	restartMovePerson();		
+}
+</script>
+</head>
+<body onload="initialFunctions()">
+<span id="paintArea"></span>
+<button onclick="restartMovePerson()">Start</button>
+&nbsp;&nbsp;&nbsp;
+<button onclick="stopPerson()">Stop</button>
+&nbsp;&nbsp;&nbsp;
+<button onclick="movement2()">Movement2</button>
+<div id="person1" class="personIcon" style="position:absolute;left:0;top:0;background-color:#A5445E;z-index:5;">&nbsp;</div>
+</body>
+</html>

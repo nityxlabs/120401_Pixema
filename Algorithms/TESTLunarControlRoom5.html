@@ -1,0 +1,2258 @@
+<html>
+<head>
+<title>Lunar.Control.Room.5</title>
+<link rel="stylesheet" type="text/css" href="LunarRoomCSS3.css" />
+<style type="text/css">
+
+.objCircle {
+	font:10px Rockwell, "Courier New", Courier, Georgia, serif;
+	color:#EEEEEE;
+	text-align:center;
+	width:20px;
+	height:20px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	cursor:pointer;
+}
+
+.objSquare {
+	font:10px Rockwell, "Courier New", Courier, Georgia, serif;
+	color:#EEEEEE;
+	text-align:center;
+	width:20px;
+	height:20px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	cursor:pointer;
+}
+
+.objTrapezoidUp {
+	font:10px Rockwell, "Courier New", Courier, Georgia, serif;
+	color:#EEEEEE;
+	text-align:center;
+	width:20px;
+	height:0;
+	border-left:10px solid transparent;
+	border-right:10px solid transparent;
+	border-bottom:20px solid #D4324D;
+	cursor:pointer;
+}
+
+.objTrapezoidDown {
+	font:10px Rockwell, "Courier New", Courier, Georgia, serif;
+	color:#EEEEEE;
+	text-align:center;
+	width:20px;
+	height:0;
+	border-left:10px solid transparent;
+	border-right:10px solid transparent;
+	border-top:20px solid #D4324D;
+	cursor:pointer;
+}
+
+.objTriDown {
+	font:10px Rockwell, "Courier New", Courier, Georgia, serif;
+	color:#EEEEEE;
+	text-align:center;
+	width:0;
+	height:0;
+	border-left:10px solid transparent;
+	border-right:10px solid transparent;
+	border-top:20px solid #D4324D;
+	cursor:pointer;
+}
+
+.objTriUp {
+	font:10px Rockwell, "Courier New", Courier, Georgia, serif;
+	color:#EEEEEE;
+	text-align:center;
+	width:0;
+	height:0;
+	border-left:10px solid transparent;
+	border-right:10px solid transparent;
+	border-bottom:20px solid #D4324D;
+	cursor:pointer;
+}
+
+.talkBoxArrow {
+   position:relative;
+   left: 7px;
+   width: 0;
+   height: 0;
+   border-left: 5px solid transparent;
+   border-right: 5px solid transparent;
+   border-top: 10px solid #5CA4F5;
+}
+
+/*ALL CSS3 ANIMATIONS*/
+/*SIDE TO SIDE PACING*/
+.horizontalPace
+{
+animation:sideToSide 2s infinite;
+-moz-animation:sideToSide 2s infinite; /* Firefox */
+-webkit-animation:sideToSide 2s infinite; /* Safari and Chrome */
+}
+
+@keyframes sideToSide
+{
+0%    {padding:0 0;}
+50%   {padding:0 20px;}
+100%  {padding:0 0;}
+}
+@-moz-keyframes sideToSide /* Firefox */
+{
+0%    {padding:0 0;}
+50%   {padding:0 20px;}
+100%  {padding:0 0;}
+}
+@-webkit-keyframes sideToSide /* Safari and Chrome */
+{
+0%    {padding:0 0;}
+50%   {padding:0 20px;}
+100%  {padding:0 0;}
+}
+
+/*UP & DOWN PACING*/
+.verticalPace
+{
+animation:upDown 2s infinite;
+-moz-animation:upDown 2s infinite; /* Firefox */
+-webkit-animation:upDown 2s infinite; /* Safari and Chrome */
+}
+
+@keyframes upDown
+{
+0%    {padding:0 0;}
+50%   {padding:20px 0;}
+100%  {padding:0 0;}
+}
+@-moz-keyframes upDown
+{
+0%    {padding:0 0;}
+50%   {padding:20px 0;}
+100%  {padding:0 0;}
+}
+@-webkit-keyframes upDown
+{
+0%    {padding:0 0;}
+50%   {padding:20px 0;}
+100%  {padding:0 0;}
+}
+
+/*PULSATING*/
+.pulsate
+{
+animation:opacityUpDown 2s infinite;
+-moz-animation:opacityUpDown 2s infinite; /* Firefox */
+-webkit-animation:opacityUpDown 2s infinite; /* Safari and Chrome */
+}
+
+@keyframes opacityUpDown
+{
+0%    {opacity:1;}
+50%   {opacity:0.2;}
+100%  {opacity:1;}
+}
+@-moz-keyframes opacityUpDown /* Firefox */
+{
+0%    {opacity:1;}
+50%   {opacity:0.2;}
+100%  {opacity:1;}
+}
+@-webkit-keyframes opacityUpDown /* Safari and Chrome */
+{
+0%    {opacity:1;}
+50%   {opacity:0.2;}
+100%  {opacity:1;}
+}
+
+/*SPINNING*/
+.spin
+{
+animation:spinBot 2s infinite;
+-moz-animation:spinBot 2s infinite; /* Firefox */
+-webkit-animation:spinBot 2s infinite; /* Safari and Chrome */
+}
+
+@keyframes spinBot
+{
+0%    {transform:rotate(-360deg);}
+50%   {transform:rotate(0deg);}
+100%  {transform:rotate(360deg);}
+}
+@-moz-keyframes spinBot /* Firefox */
+{
+0%    {-moz-transform:rotate(-360deg);}
+50%   {-moz-transform:rotate(0deg);}
+100%  {-moz-transform:rotate(360deg);}
+}
+@-webkit-keyframes spinBot /* Safari and Chrome */
+{
+0%    {-webkit-transform:rotate(-360deg);}
+50%   {-webkit-transform:rotate(0deg);}
+100%  {-webkit-transform:rotate(360deg);}
+}
+</style>
+<script src="jquery.js"></script> 
+<script type="text/javascript">
+var isIE=document.all;
+//mouse movement
+var xOrig=0;
+var yOrig=0;
+//browserSize
+var widthOfWindow;	//for window dimensions - width
+var heightOfWindow;	//for window dimensions - height
+var currentXScroll;
+var currentYScroll;
+var maxZ;
+//setMovie
+var counter=0;
+var prevX=0;
+var prevY=0;
+//frameTracker & goToFrame
+var frameNum=0;
+//dragScrollBar
+var dragBar;
+//modifyArrayString
+var largestRow=1;		//largetsRow = # of frames
+var largestCol=1;		//largestCol = # of bots
+var arrayString="";		//arrayString = script of the movie
+//track ADM array
+var ADMstr="";
+//addObject
+var countObj=0;
+var objElement;
+//botType properties
+var botColor="rgb(255,255,255)";
+var botShape="objSquare";
+var displayBotColor="background:"+botColor+";";
+//pushZ
+var origZ=0;
+//scale object
+var scaleMBD=false;		//scaleObject function. MBD = mouse button down?
+var iScalePosX;
+var iScalePosY;
+//drag objects
+var objElement,isdown,offsetx,offsety;
+//recordIn2DArray()
+var actionArray;
+var updateChange=0;		//if updateChange==0, then dont' call "convertToArray()", otherwise do call "convertToArray()"
+
+//ADM Variables
+var ADMarray=new Array();
+//record ADM array
+var ADMArray;
+var ADMover=false;
+var ADMSelectStat=false;	//ADM selector
+//setControls
+var controlMode=1;		//see type: 1 - edit, 2- play
+//FRAME CONTROL 
+var totalFrame=10;
+var barLength=1;
+var FPratio=totalFrame/barLength; 	//frame to pixel ratio
+var frameScroll=false;
+var frameNum=0;
+var frameBarOffSetX;
+//playMovie
+var playCount=0;
+var movieTimer;
+//actionBrush: 1000 - add dialog, 1001 - remove dialog, 9000 - Vamoose
+var actionBrush="1000";
+
+function browseAdj(x)
+{
+var object;
+	 if(document.getElementById){	//Mozilla
+                  object=document.getElementById(x);
+            }else if(document.all){		//Internet Explorer
+                  object=document.all[x];
+            }else if(document.layers){		//Netscape
+                  object=document.layers[x];
+            }          
+return object;
+}
+
+function browserSize() {
+	  var myWidth = 0, myHeight = 0;
+	  if( typeof( window.innerWidth ) == 'number' ) {   //Non-IE
+	    myWidth = window.innerWidth;
+	    myHeight = window.innerHeight;
+	    myXScroll = window.pageXOffset;
+	    myYScroll = window.pageYOffset;
+	  } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+	    //IE 6+ in 'standards compliant mode'
+	    myWidth = document.documentElement.clientWidth;
+	    myHeight = document.documentElement.clientHeight;
+	    myXScroll = document.documentElement.scrollLeft;
+	    myYScroll = document.documentElement.scrollTop;
+	  } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {  //IE 4 compatible
+	    myWidth = document.body.clientWidth;
+	    myHeight = document.body.clientHeight;
+	    myXScroll = document.body.scrollLeft;
+	    myYScroll = document.body.scrollTop;
+	  }
+	  widthOfWindow=myWidth;
+	  heightOfWindow=myHeight;
+	  currentXScroll=myXScroll;
+	  currentYScroll=myYScroll;
+	  //window.alert( 'Width = ' + myWidth );
+	  //window.alert( 'Height = ' + myHeight );  
+}
+
+
+function mouseOrig(x)
+{
+	if(browseAdj(x))
+	{
+		xOrig = window.event.x;
+		yOrig = window.event.y;		
+	}
+	else //works for Netscape & Mozilla
+	{
+		xOrig = x.pageX;
+		yOrig = x.pageY;	
+	}
+	getNodeName=isIE ? x.srcElement : x.target;
+	//prevents highlighting when dragging
+	//if nodeName is an input or textarea, then user will be able to type in it
+	//else if nodeName is another type (i.e. div), then return is false, thus preventing highlighting when dragging
+	if(getNodeName.nodeName=="INPUT" || getNodeName.nodeName=="TEXTAREA"){return true;}
+	else {return false;}
+}
+document.onmousedown=mouseOrig;
+
+function findSubStr(fullStr,strOI)
+{
+	var findStat;
+	if(fullStr.indexOf(strOI)!=-1){findStat=true;}
+	else{findStat=false;}
+	return findStat;
+}
+
+function findAndRemoveSubstr(fullStr,removeStr,newStr)
+{
+	var newFullStr=fullStr.replace(removeStr,newStr);
+	return newFullStr;
+}
+
+function retrieveNodeArray(NameOfNode,NodeTrait,SpecificTrait)
+{
+	//NameOfNode - access the name attribute of the node
+	//NodeTrait - the attribute of interest for the node (getAttribute)
+	//SpecificTrait - the value the NodeTrait should match
+	//create array
+	var i;
+	var k=0;
+	var ArrayOfNodes=new Array();
+	var e=new Array();
+	var e=document.getElementsByName(NameOfNode);
+	//for(i in e)
+	for(i=0;i<e.length;i++)
+	{
+		if(e[i].getAttribute(NodeTrait)==SpecificTrait)
+		{
+			ArrayOfNodes[k]=e[i];
+			k++;			
+		}
+	}
+	return ArrayOfNodes;
+}
+
+function closePopUps()
+{
+	browseAdj("popUpArea").innerHTML="";
+}
+
+function resetMouseEvents()
+{
+	document.onmouseover=function(){};
+	document.onmousemove=function(){};
+	document.onmouseout=function(){};
+	document.onmousedown=mouseOrig;
+}
+
+function clearJSEvents()
+{
+	document.onmouseup=function(){}
+	document.onmousemove=function(){}
+	document.onclick=function(){}
+	document.onmousedown=mouseOrig;
+}
+
+function getRelativeSize(width,height)
+{
+	var relWidth,relHeight;
+	browserSize();
+	relWidth=Math.round((width/widthOfWindow)*1000);
+	relWidth=relWidth/1000;
+	relHeight=Math.round((height/heightOfWindow)*1000);
+	relHeight=relHeight/1000;
+
+	return [relWidth, relHeight];
+}
+
+function findRelativePos(xPos,yPos)
+{
+	var relX,relY;
+	browserSize();
+	relX=Math.round((xPos/widthOfWindow)*1000);
+	relX=relX/1000;
+	relY=Math.round((yPos/heightOfWindow)*1000);
+	relY=relY/1000;
+
+	return [relX, relY];
+}
+
+function relativeRandOutScreenPos(botNum)
+{
+	var getRandPos=randOutScreenPos(botNum);
+	var randPos=getRandPos.split("~");
+	var getPos=findRelativePos(randPos[0],randPos[1]);
+	var relRandPos=getPos[0]+"~"+getPos[1];
+	return relRandPos;
+}
+
+function randOutScreenPos(botNum)
+{
+	var randomX,randomY,totalX,totalY;
+	//get dimension of window
+	browserSize();
+	//get bot dimensions
+	var botID,botHeight,botWidth;
+	botID="obj"+botNum;
+	botHeight=parseFloat(browseAdj(botID).getAttribute("botHeight"));
+	botWidth=parseFloat(browseAdj(botID).getAttribute("botWidth"));
+	//get random # for x position. 0 = left, 1 = right
+	var chooseX=Math.round(Math.random());
+	if(chooseX==0){
+		totalX=Math.random()*100+botWidth;
+		randomX="-"+totalX;
+	}
+	else{randomX=(Math.random()*100)+widthOfWindow+100;}
+	//get random # for y position. 0 = top, 1 = bottom
+	var chooseY=Math.round(Math.random());
+	if(chooseY==0){
+		totalY=Math.random()*100+botHeight;
+		randomY="-"+totalY;
+	}
+	else{randomY=(Math.random()*100)+heightOfWindow+100;}
+	var strRandPos=randomX+"~"+randomY;
+	return strRandPos;
+}
+
+function randomColorGenerator()
+{
+	var colorString;
+	var colorR=Math.floor(Math.random()*255);
+	var colorB=Math.floor(Math.random()*255);
+	var colorG=Math.floor(Math.random()*255);
+	colorString="rgb("+colorR+","+colorG+","+colorB+")";
+	return colorString;
+}
+
+function randomlyPlace()
+{
+	browserSize();
+	//randomly generate numbers within size of screen to place person
+	var randomX=Math.random()*widthOfWindow;
+	var randomY=Math.random()*heightOfWindow;
+	//position person in random location
+	browseAdj("person1").style.left=randomX;
+	browseAdj("person1").style.top=randomY;	
+}
+
+//SET BOT TYPE
+function botColorSwatch()
+{
+	var colorGrid,colorString;
+	var r,g,b;
+	colorGrid="<table>";
+	//red
+	colorGrid+="<tr>";
+	for(a1=0;a1<6;a1++)
+	{
+		r=220;
+		g=20+15*a1;
+		b=90+15*a1;
+		colorString="rgb("+r+","+g+","+b+")";
+		colorGrid+="<td class='colorBox' style='background:"+colorString+";' onclick='selectBotColor(event)'></td>";
+	}
+	colorGrid+="</tr>";
+	//orange
+	colorGrid+="<tr>";
+	for(a1=0;a1<6;a1++)
+	{
+		r=210;
+		g=150;
+		b=30+20*a1;
+		colorString="rgb("+r+","+g+","+b+")";
+		colorGrid+="<td class='colorBox' style='background:"+colorString+";' onclick='selectBotColor(event)'></td>";
+	}
+	colorGrid+="</tr>";
+	//green
+	colorGrid+="<tr>";
+	for(a1=0;a1<6;a1++)
+	{
+		r=20+20*a1;
+		g=220;
+		b=150;
+		colorString="rgb("+r+","+g+","+b+")";
+		colorGrid+="<td class='colorBox' style='background:"+colorString+";' onclick='selectBotColor(event)'></td>";
+	}
+	colorGrid+="</tr>";
+	//blue
+	colorGrid+="<tr>";
+	for(a1=0;a1<6;a1++)
+	{
+		r=20+20*a1;
+		g=150;
+		b=220;
+		colorString="rgb("+r+","+g+","+b+")";
+		colorGrid+="<td class='colorBox' style='background:"+colorString+";' onclick='selectBotColor(event)'></td>";
+	}
+	colorGrid+="</tr>";
+	//violet
+	colorGrid+="<tr>";
+	for(a1=0;a1<6;a1++)
+	{
+		r=110;
+		g=20+20*a1;
+		b=170;
+		colorString="rgb("+r+","+g+","+b+")";
+		colorGrid+="<td class='colorBox' style='background:"+colorString+";' onclick='selectBotColor(event)'></td>";
+	}
+	colorGrid+="</tr>";
+	//white
+	colorGrid+="<tr>";
+	for(a1=0;a1<6;a1++)
+	{
+		r=20+20*a1;
+		g=20+20*a1;
+		b=20+20*a1;
+		colorString="rgb("+r+","+g+","+b+")";
+		colorGrid+="<td class='colorBox' style='background:"+colorString+";' onclick='selectBotColor(event)'></td>";
+	}
+	colorGrid+="</tr>";
+
+	colorGrid+="</table>";
+	return colorGrid;
+}
+
+function getShapeStyle(getBotShape,getBotColor)
+{
+	var displaygetBotColor;
+	if(getBotShape=="objTriUp" || getBotShape=="objTrapezoidUp"){displaygetBotColor="border-bottom:20px solid "+getBotColor+";";}
+	else if(getBotShape=="objTriDown" || getBotShape=="objTrapezoidDown"){displaygetBotColor="border-top:20px solid "+getBotColor+";";}
+	else{displaygetBotColor="background:"+getBotColor+";";}
+	return displaygetBotColor;
+}
+
+function selectBotColor(e)
+{
+	var colorInfo=isIE ? e.srcElement : e.target;
+	botColor=colorInfo.style.backgroundColor;
+	changeDisplayBotColor();
+}
+
+function selectBotShape(e)
+{
+	var shapeInfo=isIE ? e.srcElement : e.target;
+	botShape=shapeInfo.getAttribute("class");
+	changeDisplayBotColor();
+}
+
+function changeDisplayBotColor()
+{
+	
+	var displayBotColor=getShapeStyle(botShape,botColor);
+	/*
+	if(botShape=="objTriUp" || botShape=="objTrapezoidUp"){displayBotColor="border-bottom:20px solid "+botColor+";";}
+	else if(botShape=="objTriDown" || botShape=="objTrapezoidDown"){displayBotColor="border-top:20px solid "+botColor+";";}
+	else{displayBotColor="background:"+botColor+";";}
+	*/
+	browseAdj("displayCurrBot").innerHTML="<div class='"+botShape+"' style='"+displayBotColor+"'></div>";
+}
+	
+function botTypeMenu(e)
+{
+	mouseOrig(e);
+	//var yOrig2=yOrig+80;
+	var displayMenu="<table id='botTypeMenu' class='actionBox' style='position:absolute;left:"+xOrig+";top:"+yOrig+";z-index:"+maxZ+";'>";
+	displayMenu+="<tr><td colspan='2'>Bot Menu</td><td><div class='closeX' onclick='closePopUps()'>X</div></td></tr>";
+	displayMenu+="<tr><td valign='top'><table>";
+	displayMenu+="<tr><td align='center'><div class='objSquare' style='background-color:#D4324D;' onclick='selectBotShape(event)'></div></td><td align='center'><div class='objCircle' style='background-color:#D4324D;' onclick='selectBotShape(event)'></div></td></tr>";
+	displayMenu+="<tr><td align='center'><div class='objTriUp' onclick='selectBotShape(event)'></div></td><td align='center'><div class='objTriDown' onclick='selectBotShape(event)'></div></td></tr>";
+	displayMenu+="<tr><td align='center'><div class='objTrapezoidUp' onclick='selectBotShape(event)'></div></td><td align='center'><div class='objTrapezoidDown' onclick='selectBotShape(event)'></div></td></tr>";
+	displayMenu+="</table></td><td valign='top'>";
+	var colorGrid=botColorSwatch();
+	displayMenu+=colorGrid+"</td>";
+	displayMenu+="<td valign='top' align='center'>Bot Type:<br/><br/><span id='displayCurrBot'></span></td>";
+	displayMenu+="</tr>";
+	//displayMenu+="<tr><td class='colorBox' style='background:#d21636;'></td><td class='colorBox' style='background:#D4324D;'></td><td class='colorBox' style='background:#D2445C;'></td><td class='colorBox' style='background:#d2596d;'></td><td class='colorBox' style='background:#d2697b;'></td><td class='colorBox' style='background:#d1818f;'></td></tr>";
+	//displayMenu+="</table></td></tr>";
+	displayMenu+="<tr><td colspan='3' class='buttonGray' style='background-color:#5CA4F5;' onclick='closePopUps();'>Done</td></tr>";
+	displayMenu+="</table>";
+	//<div class='"+botShape+"' style='"+displayBotColor+"'></div>
+	browseAdj("popUpArea").innerHTML=displayMenu;
+	changeDisplayBotColor();
+}
+
+function getBotTypes()
+{
+	var botID,botOI;
+	var botWidth,botHeight,botDimensions;
+	var botStr="";
+	var allBots=document.getElementsByName("bot");
+	for(b=0;b<allBots.length;b++)
+	{
+		botID="obj"+b;
+		botOI=browseAdj(botID);
+		botWidth=botOI.getAttribute("botWidth");
+		botHeight=botOI.getAttribute("botHeight");
+		botDimensions=getRelativeSize(botWidth,botHeight);
+		botStr+=b+"*"+botOI.getAttribute("class")+"*"+botOI.getAttribute("colorBot")+"*"+botDimensions[0]+"*"+botDimensions[1]+";";
+	}
+
+	return botStr;
+}
+
+//DATA MANAGEMENT
+//create object
+function Bot(position,talk,animation,shape,color,width,height)
+{
+	this.position=position;
+	this.talk=talk;
+	this.animation=animation;
+	this.shape=shape;
+	this.color=color;
+	this.width=width;
+	this.height=height;
+	//other ideas: frame caption, bot mood
+}
+
+function getDataStr(e)
+{
+	mouseOrig(e);
+	//get bot types
+	var getBotStr=getBotTypes();
+	//get action script
+	convertToArray();
+	var packageStr=getBotStr+"|"+arrayString+"|"+totalFrame+":"+largestCol;
+	var yOrig2=yOrig-40;
+	var dataStrBox="<table id='controlMenuBox' style='position:absolute;left:"+xOrig+";top:"+yOrig2+";z-index:"+maxZ+";background-color:#333333;'>";
+	dataStrBox+="<tr><td>Data String</td><td class='closeX' onclick='closePopUps()'>X</td></tr>";
+	dataStrBox+="<tr><td colspan='2'><textarea class='textField'>"+packageStr+"</textarea></td></tr></table>";
+	browseAdj("popUpArea").innerHTML=dataStrBox;
+}
+
+function setDataStr()
+{
+	var objID,botID,talkID,randomColor;
+	var getRelOutPos,newObj,newObjPos,newX,newY;
+	var botData1,botData2;
+	var botWidth,botHeight;
+	//STEP 1 - get & unpackage data string
+	var unpackStr=browseAdj("actionScript").value;
+	unpackStr=unpackStr.split("|");
+	
+	//STEP 2 - set up variables
+	frameNum=0; 	//reset global frame counter
+	//0 = bot shapes & colors, 1 = actionScript, 2 = totalFrames & # of bots
+	//set bot types
+	botData1=unpackStr[0];
+	//set array string
+	arrayString=unpackStr[1];
+	//set totalFrame & bot #
+	cTAStr=unpackStr[2].split(":");
+	totalFrame=parseInt(cTAStr[0]);
+	//var lastFrame=totalFrame-1;
+	largestCol=parseInt(cTAStr[1]);		//largestCol - # of bots
+	//STEP 3 - get bots into environment
+	//clear movie environment first
+	browseAdj("movieEnvironment").innerHTML="";
+	botData2=botData1.split(";");
+	countObj=largestCol;		//countObj = global variable, # of bots. -1 as the split function counts anything after the delimiter ";"
+	for(i=0;i<countObj;i++)
+	{
+		//get each bot's information - shape & color
+		botData3=botData2[i].split("*");
+		//0 = bot #, 1 = bot shape, 2 = bot color, 3 = width, 4 = height
+		botShape=botData3[1];
+		botColor=botData3[2];
+		botWidth=botData3[3]*widthOfWindow;
+		botHeight=botData3[4]*heightOfWindow;
+		if(botWidth<20){botWidth=20;}
+		if(botHeight<20){botHeight=20;}
+		
+		//place bot in environment
+		newObj=returnBot2(i,newX,newY,botHeight,botWidth,botShape,botColor);
+		browseAdj("movieEnvironment").innerHTML+=newObj;
+		
+		//position bot in environment
+		getRelOutPos=relativeRandOutScreenPos(i);
+		newObjPos=getRelOutPos.split("~");
+		newX=newObjPos[0]*widthOfWindow;
+		newY=newObjPos[1]*heightOfWindow;
+		
+		//implement style of bot by using "getStyle2()" function
+		var objID="obj"+i;
+		getStyle2(objID,botWidth,botHeight);
+	}
+	//STEP 4 - play first frame of movie. Need convertToArray(), then playByFrame0()
+	convertToArray();
+	playByFrame0(0);
+	augmentADMBar(totalFrame);
+}
+
+var strArray=new Array();		//strArray is a 2D array contains words from the story, where 
+strArray[0]=new Array();		//for nouns
+strArray[1]=new Array();		//for verbs
+strArray[2]=new Array();		//for adjectives
+var pixArray=new Array();
+pixArray[0]=new Array();		//pixelated translation of nouns
+pixArray[1]=new Array();		//pixelated translation of verbs
+pixArray[2]=new Array();		//pixelated translation of adjectives
+function setStory()
+{
+	var tempStr1;
+	//STEP 1 - retrieve story string
+	var storyScript=browseAdj("storyScript").value;
+	//STEP 2 - separation: each sentence from paragraph, each word from sentence
+	tempStr1=storyScript.split(" ");
+	//STEP 3 - identify the noun, verbs, adjectives, adverbs, pronouns, conjunctions
+	//STEP 4 - assign a bot for each noun. They can be defined 
+	//STEP 5 - assign an action to each noun.
+}
+
+/*
+function frameTracker(step)
+{	
+	frameNum=frameNum+step;
+	//check the boundaries of the frameNum
+	if(frameNum<0){frameNum=0;}
+	if(frameNum>=totalFrame){frameNum=totalFrame;}
+	browseAdj("displayFrameNum").innerHTML="&nbsp;"+frameNum+"&nbsp;";
+	positionKnob(frameNum);
+}
+*/
+
+//ARRAY STRING & ACTION STRING
+//after changes made to a specific frame, events are recorded in a string
+//row = frame #, column = object #
+function modifyArrayString(objNum,frameNum,actionStr)
+{
+	//row=frame, & column=objNum
+	if(frameNum>=largestRow){largestRow=frameNum+1;}
+	if(objNum>=largestCol){largestCol=objNum+1;}
+	//save as string - frameNum:objNum:actionString
+	//actionString=action type, actual action, change state
+	arrayString+=frameNum+":"+objNum+":"+actionStr+";";
+	updateChange=1;
+	//browseAdj("arrayText").innerHTML=arrayString;
+}
+
+function convertToArray()
+{
+	var copyOfArrayStr,frameDiv,getEleStr,getRow,getCol,getVal,getRandPos;
+	//create array with appropriate size - totalFrame & largestCol
+	actionArray=new Array(totalFrame);
+	for(i=0;i<totalFrame;i++)
+	{
+		actionArray[i]=new Array(largestCol);
+	}
+	//initiate array
+	for(a=0;a<totalFrame;a++)
+	{
+		for(b=0;b<largestCol;b++)
+		{
+			actionArray[a][b]=new Bot("","","","","","","");
+		}
+	}
+	//add values to array
+	copyOfArrayStr=arrayString;
+	frameDiv=copyOfArrayStr.indexOf(";");
+	while(frameDiv && (copyOfArrayStr.length>1))
+	{
+		getEleStr=copyOfArrayStr.substr(0,frameDiv);
+		copyOfArrayStr=copyOfArrayStr.substr(frameDiv+1);
+		frameDiv=copyOfArrayStr.indexOf(";");
+		colonArray=getEleStr.split(":");
+		//get row - # of frames
+		getRow=colonArray[0];
+		//get column - # of bots
+		getCol=colonArray[1];
+		//get value
+		getVal=colonArray[2];
+		//splice getVal - gets the action type & value
+		valueArray=getVal.split("*");
+		if(valueArray[0]=="m+"){
+			actionArray[getRow][getCol].position=valueArray[1];
+		}
+		else if(valueArray[0]=="t+"){
+			actionArray[getRow][getCol].talk=valueArray[1];
+		}
+		else if(valueArray[0]=="a+"){
+			actionArray[getRow][getCol].animation=valueArray[1];
+		}
+	}
+	//clean up data string - remove redundant parts of the string
+	//row = frame #, column = object #
+	var cleanActionStr="";
+	for(c2=0;c2<actionArray.length;c2++)
+	{
+		for(d2=0;d2<actionArray[c2].length;d2++)
+		{
+			//get the position. The position is denoted by "m+"
+			if(actionArray[c2][d2].position!=""){cleanActionStr+=c2+":"+d2+":"+"m+*"+actionArray[c2][d2].position+";";}
+			//get the dialogue. The dialogue (talk) is denoted by "t+"
+			if(actionArray[c2][d2].talk!=""){cleanActionStr+=c2+":"+d2+":"+"t+*"+actionArray[c2][d2].talk+";";}
+			//get the animation. The animation is denoted by "a+"
+			if(actionArray[c2][d2].animation!=""){cleanActionStr+=c2+":"+d2+":"+"a+*"+actionArray[c2][d2].animation+";";}
+		}
+	}
+	//replace old arrayString with new, "cleaned" array
+	//browseAdj("TESTArray").innerHTML="OLD - "+arrayString+"<br/>NEW - "+cleanActionStr;
+	arrayString=cleanActionStr;
+	//call ADM function for each bot
+	for(d=0;d<actionArray[0].length;d++)
+	{
+		ADM(d);
+	}
+	//NEED TO GO THROUGH ARRAY, FILLING IN THE "GAPS"
+	//replacePosArray - an array that will save the current state of the bot, thus filling gaps for subsequent elements.
+	//Need to create a new element for each bot
+	//getRandPos=relativeRandOutScreenPos("none");
+	getRandPos="-100~-100";
+	var replaceNullVal=new Bot(getRandPos,"[VOIDNULL]",0,"objSquare","rgb(0,0,0)","20","20");
+	var replacePosArray=new Array();
+	for(b=0;b<actionArray[0].length;b++)
+	{
+		getRandPos=relativeRandOutScreenPos(b);
+		replacePosArray[b]=new Bot(getRandPos,"[VOIDNULL]",0,"objSquare","rgb(0,0,0)","20","20");
+		//replacePosArray[b]=replaceNullVal;
+	}
+	//go through each row & column
+	for(c=0;c<actionArray.length;c++)
+	{
+		for(d=0;d<actionArray[c].length;d++)
+		{
+			//go through each property
+			//move
+			if(actionArray[c][d].position==""){actionArray[c][d].position=replacePosArray[d].position;}			//if no position is specified, then just fill with current value in replacePosArray
+			else{replacePosArray[d].position=actionArray[c][d].position;}		//else save new state for specific bot.
+			//talk
+			if(actionArray[c][d].talk==""){actionArray[c][d].talk=replacePosArray[d].talk;}
+			else{replacePosArray[d].talk=actionArray[c][d].talk;}
+			//animation
+			if(actionArray[c][d].animation==""){actionArray[c][d].animation=replacePosArray[d].animation;}
+			else{replacePosArray[d].animation=actionArray[c][d].animation;}
+			//shape
+			if(actionArray[c][d].shape==""){actionArray[c][d].shape=replacePosArray[d].shape;}
+			else{replacePosArray[d].shape=actionArray[c][d].shape;}
+			//color
+			if(actionArray[c][d].color==""){actionArray[c][d].color=replacePosArray[d].color;}
+			else{replacePosArray[d].color=actionArray[c][d].color;}
+			//width
+			if(actionArray[c][d].width==""){actionArray[c][d].width=replacePosArray[d].width;}
+			else{replacePosArray[d].width=actionArray[c][d].width;}
+			//height
+			if(actionArray[c][d].height==""){actionArray[c][d].height=replacePosArray[d].height;}
+			else{replacePosArray[d].height=actionArray[c][d].height;}
+		}
+	}
+	/*
+	//display array
+	var displayArray="<table border='1'>";
+	var objText="";
+	//x represents the # of frames
+	for(x=0;x<totalFrame;x++)
+	{
+		displayArray+="<tr><td>"+x+"</td>";
+		//largestCol is the # of bots 
+		for(y=0;y<largestCol;y++)
+		{
+			//alert("loop1: "+x+" | "+y);
+			objText="Pos: "+actionArray[x][y].position+" | Talk: "+actionArray[x][y].talk;
+			displayArray+="<td>"+objText+"</td>";
+		}
+		displayArray+="</tr>";
+	}
+	displayArray+="</table>";
+	browseAdj("TESTArray").innerHTML=displayArray;
+	*/
+}
+
+//DECISIONS FUNCTIONS
+//make decision on clicks
+function decisionMaker(e)
+{
+	var ele=isIE ? e.srcElement : e.target;
+	//if on an existing object
+	if(ele.getAttribute("id")=="movieEnvironment"){scaleObject(e);}
+}
+
+/*
+function pushUpZ(e)
+{
+	//get objNum
+	var objInfo=isIE ? e.srcElement : e.target;
+	//get original Z
+	origZ=objInfo.style.zIndex;
+	//push up z-index
+	var objNum=objInfo.getAttribute("objNum");
+	var botID="bot"+objNum
+	browseAdj(botID).style.zIndex=maxZ;
+	//TEST
+	//var botBox="obj"+objNum;
+	//browseAdj(botBox).innerHTML="L";
+	document.onmouseout=function()
+	{
+		browseAdj(botID).style.zIndex=origZ;
+		browseAdj(botBox).innerHTML="&nbsp;";
+		//resetMouseEvents();
+	} 
+}
+*/
+
+function animationMenu(e)
+{
+	//get position to show box
+	var animePos=isIE ? e.srcElement : e.target;
+	var displayBotColor=getShapeStyle(botShape,botColor);
+	//design animation box
+	var displayMenu="<table border='0' cellpadding='0' cellspacing='1' id='animeMenuBox' class='actionBox' style='position:absolute;left:"+xOrig+";top:"+yOrig+";z-index:"+maxZ+";'>";
+	displayMenu+="<tr><td colspan='1'>Menu</td><td colspan='1'><div class='closeX' onclick='closePopUps()'>X</div></td></tr>";
+	displayMenu+="<tr><td colspan='2' actionType='1000' class='buttonDarkGray' onclick='setActionBrush(event)'>Talk</td></tr>";
+	displayMenu+="<tr><td colspan='2' actionType='2000' class='buttonDarkGray' onclick='setActionBrush(event)'>Replicate</td></tr>";
+	displayMenu+="<tr><td colspan='2' actionType='9000' class='buttonDarkGray' style='background-color:#5CA4F5;' onclick='setActionBrush(event)'>Vamoose</td></tr>";
+	displayMenu+="<tr><td colspan='2'><div style='width:100%;height:1px;background-color:#999999;'></div></td></tr>";
+	//action brushes
+	displayMenu+="<tr><td colspan='2'>Action Brushes</td></tr>";
+	//remove all actions
+	displayMenu+="<tr><td colspan='2' class='buttonDarkGray' actionType='0' style='background-color:#D4324D;' onclick='setActionBrush(event)'>None</td></tr>";
+	//side to side action
+	displayMenu+="<tr><td colspan='2' class='buttonDarkGray' actionType='1' onclick='setActionBrush(event)'>Side to Side</td></tr>";
+	//displayMenu+="<tr><td colspan='2' class='buttonDarkGray' actionType='1' onclick='setActionBrush(event)'><div class='horizontalPace' style='width:0px;background-color:#5CA4F5;'><div class='"+botShape+"' style='"+displayBotColor+"'>&nbsp;</div></div></td></tr>";
+	//up & down action
+	displayMenu+="<tr><td colspan='2' class='buttonDarkGray' actionType='2' onclick='setActionBrush(event)'>Up & Down</td></tr>";
+	//displayMenu+="<tr><td valign='top' colspan='2' class='buttonDarkGray' style='height:50px;' actionType='2' onclick='setActionBrush(event)'><div class='verticalPace' style='height:0px;background-color:#5CA4F5;'><div class='"+botShape+"' style='"+displayBotColor+";'>&nbsp;</div></div></td></tr>";
+	//pulsate action
+	displayMenu+="<tr><td colspan='2' class='buttonDarkGray' actionType='3' onclick='setActionBrush(event)'>Pulsate</td></tr>";
+	//displayMenu+="<tr><td colspan='2' class='buttonDarkGray' actionType='3' onclick='setActionBrush(event)'><div class='"+botShape+"' pulsate' style='"+displayBotColor+"'>&nbsp;</div></td></tr>";
+	//spin action
+	displayMenu+="<tr><td colspan='2' class='buttonDarkGray' actionType='4' onclick='setActionBrush(event)'>Spin</td></tr>";
+	//End of Action Brushes
+	displayMenu+="</table>";
+	browseAdj("popUpArea").innerHTML=displayMenu;	
+}
+
+function setActionBrush(e)
+{
+	var getBrush=isIE ? e.srcElement : e.target;
+	actionBrush=parseInt(getBrush.getAttribute("actionType"));
+	//change animation name 
+	browseAdj("animeButton").innerHTML=getBrush.innerHTML;
+	//close animationMenu
+	closePopUps();
+}
+
+function popUpTalkDialog(e)
+{
+	objElement=isIE ? e.srcElement : e.target;
+	mouseOrig(e);
+	//make popup box
+	var pUTB="<table id='talkDialog' class='actionBox' objNum='"+objElement.getAttribute("objNum")+"' style='position:absolute;left:"+xOrig+";top:"+yOrig+";z-index:"+maxZ+";opacity:0;'>";
+	pUTB+="<tr><td>Add Dialog</td><td class='closeX' onclick='closePopUps()'>X</td></tr>";
+	pUTB+="<tr><td colspan='2'><form method='POST' objNum='"+objElement.getAttribute("objNum")+"' actionType='1000' onsubmit='return blockSubmit(event)'><input id='dialogBox' class='textField' type='text'/></form></td></tr>";
+	//pUTB+="<tr><td colspan='2' class='buttonGray' style='background-color:#5CA4F5;' objNum='"+objElement.getAttribute("objNum")+"' actionType='1' onclick='addAction(event)'>Submit</td></tr>";
+	pUTB+="</table>";
+	//pUTB+="<tr><td colspan='2'><div style='width:100%;height:1px;background-color:#BBBBBB;'></div></td></tr>";
+	//pUTB+="<tr><td colspan='2'><div style='width:100%;height:1px;background-color:#BBBBBB;'></div></td></tr></table>";
+	//display box in popUp area
+	browseAdj("popUpArea").innerHTML=pUTB;
+	$(function(event){
+		$("#talkDialog").animate({opacity:1,top:'-=25'});	
+	});
+}
+
+function blockSubmit(e) {
+	auxToAction(e);
+	return false;	
+}
+
+function auxToAction(e)
+{
+	var actElement=isIE ? e.srcElement : e.target;
+	var countObj=actElement.getAttribute("objNum");
+	var getAT=actElement.getAttribute("actionType");	//get actionType
+	addAction(countObj,getAT);
+}
+
+function paintAction(e)
+{
+	var getBot=isIE ? e.srcElement : e.target;
+	var getBotNum=getBot.getAttribute("objNum");
+	if(actionBrush==1000){popUpTalkDialog(e);}
+	else{addAction(getBotNum,actionBrush);}
+}
+
+function addAction(objNum,actionType)
+{
+	var actionStr;
+	var duplicate=false;
+	//get the type of action & create action string
+	if(actionType==1000)		//1000 is for talking
+	{
+		//create & save action string
+		actionStr="t+*"+browseAdj("dialogBox").value;
+		//create talk bubble
+		showTalkBubble(objNum,browseAdj("dialogBox").value);
+	}
+	else if(actionType==1001)		//1001 is removing talk bubble
+	{
+		//remove talk bubble from specific bot
+		showTalkBubble(objNum,"[ERASE]");
+		//add action to arrayString
+		actionStr="t+*[ERASE]";
+	}
+	else if(actionType==2000)		//2000 is duplicating object
+	{
+		//send information to function to duplicate object
+		duplicateBot(objNum);
+		duplicate=true;
+	}
+	else if(actionType==9000)		//9000 is removing object
+	{
+		//remove animation
+		addAnimation(objNum,0);
+		//need to add "animation removal" string
+		modifyArrayString(objNum,frameNum,"a+*0");
+		//remove object from view
+		removeObject(objNum);
+		var getRelRandPos=relativeRandOutScreenPos(objNum);
+		//set action string
+		actionStr="m+*"+getRelRandPos;
+	}
+	//else add animation
+	else
+	{
+		//add class to bot
+		addAnimation(objNum,actionType);		//0 - remove animations, 1 - side to side, 2 - up & down, 3 - pulsate
+		//set action string
+		actionStr="a+*"+actionType;
+	}
+	//send to array string
+	closePopUps();
+	if(!duplicate){modifyArrayString(objNum,frameNum,actionStr);}
+}
+
+/*
+function popUpActionBox(e)
+{
+	objElement=isIE ? e.srcElement : e.target;
+	mouseOrig(e);
+	//make popup box
+	var pUAB="<table id='actionBox' class='actionBox' objNum='"+objElement.getAttribute("objNum")+"' style='position:absolute;left:"+xOrig+";top:"+yOrig+";z-index:"+maxZ+";opacity:0;'>";
+	pUAB+="<tr><td>Add Dialog</td><td class='closeX' onclick='closePopUps()'>X</td></tr>";
+	pUAB+="<tr><td colspan='2'><input id='dialogBox' class='textField' type='text'/></td></tr>";
+	pUAB+="<tr><td colspan='2' class='buttonGray' style='background-color:#5CA4F5;' objNum='"+objElement.getAttribute("objNum")+"' actionType='1' onclick='addAction(event)'>Submit</td></tr>";
+	pUAB+="<tr><td colspan='2'><div style='width:100%;height:1px;background-color:#BBBBBB;'></div></td></tr>";
+	//animation section
+	pUAB+="<tr><td colspan='2'>Add Animation</td></tr>";
+	pUAB+="<tr><td colspan='2' class='buttonGray' objNum='"+objElement.getAttribute("objNum")+"' actionType='4' onclick='addAction(event)'>None</td></tr>";
+	pUAB+="<tr><td colspan='2' class='buttonGray' objNum='"+objElement.getAttribute("objNum")+"' actionType='5' onclick='addAction(event)'>Side to Side</td></tr>";
+	pUAB+="<tr><td colspan='2' class='buttonGray' objNum='"+objElement.getAttribute("objNum")+"' actionType='6' onclick='addAction(event)'>Up & Down</td></tr>";
+	pUAB+="<tr><td colspan='2'><div style='width:100%;height:1px;background-color:#BBBBBB;'></div></td></tr>";
+	pUAB+="<tr><td colspan='2' class='buttonGray' style='background-color:#D06692;' objNum='"+objElement.getAttribute("objNum")+"' actionType='3' onclick='addAction(event)'>Vamoose</td></tr></table>";
+	//display box in popUp area
+	browseAdj("popUpArea").innerHTML=pUAB;
+	$(function(event){
+		$("#actionBox").animate({opacity:1,top:'-=25'});	
+	});
+}
+*/
+
+//ACTIONS & DATA IMPLEMENTATION
+//size object
+function scaleObject(e)
+{
+	scaleMBD=true;
+	//get initial position for click
+	mouseOrig(e);
+	iScalePosX=xOrig;
+	iScalePosY=yOrig;
+	//add temporary object field
+	var displayBotColor=getShapeStyle(botShape,botColor);
+	browseAdj("scaleObjArea").innerHTML="<div id='tempScaleObj' colorBot='"+botColor+"' class='"+botShape+"' style='position:absolute;left:"+iScalePosX+";top:"+iScalePosY+";opacity:0.3;"+displayBotColor+";z-index:"+maxZ+";'>&nbsp;</div>";
+	var scaleObj=browseAdj("tempScaleObj");
+	//onmousemove = show faded object, show scale of object
+	document.onmousemove=sizingObject;
+	//onmouseup = addObject
+	document.onmouseup=function()
+	{
+		scaleMBD=false;
+		addObject2(iScalePosX,iScalePosY);
+		//increment countObj
+		countObj++;
+		//reset mouse events
+		resetMouseEvents();
+	}
+}
+
+function sizingObject(e){
+	  if (!scaleMBD) return;
+	  var sizeX=isIE ? event.clientX-iScalePosX+currentXScroll : e.clientX-iScalePosX+currentXScroll;
+	  var sizeY=isIE ? event.clientY-iScalePosY+currentYScroll : e.clientY-iScalePosY+currentYScroll;
+	  getStyle2("tempScaleObj",sizeX,sizeY);
+	  return false;  
+}
+
+function addObject2(getX,getY)
+{
+	var botHeight=parseFloat(browseAdj("tempScaleObj").offsetHeight);
+	var botWidth=parseFloat(browseAdj("tempScaleObj").offsetWidth);
+	if(botHeight<20){botHeight=20;}
+	if(botWidth<20){botWidth=20;}
+	//alert("style: "+browseAdj("tempScaleObj").offsetHeight+" | "+browseAdj("tempScaleObj").offsetWidth);
+	//alert("style: "+browseAdj("tempScaleObj").getAttribute("style"));
+	//get new bot
+	var newBot=returnBot2(countObj,getX,getY,botHeight,botWidth,botShape,botColor);
+	browseAdj("movieEnvironment").innerHTML+=newBot;
+	browseAdj("scaleObjArea").innerHTML="";
+	//keep style with bot using "getStyle2()" function
+	var objID="obj"+countObj;
+	getStyle2(objID,botWidth,botHeight);
+
+	//save Bot
+	//find relative position of Bot
+	var getPos=findRelativePos(getX,getY);
+	//create action string: move-xPosition,yPosition
+	var actionStr="m+*"+getPos[0]+"~"+getPos[1];
+	//add data to ArrayString
+	modifyArrayString(countObj,frameNum,actionStr);
+}
+
+function returnBot2(botNum,botX,botY,height,width,shape,color)
+{
+	var displayBotColor="";
+	var botID="bot"+botNum;
+	var objID="obj"+botNum;
+	var talkBubbleID="talkBubble"+botNum;
+	var talkID="talk"+botNum;
+	var closeID="closeX"+botNum;
+	//get bot style
+	//displayBotColor=getShapeStyle(shape,color);
+	var botZ=getBotZ(height,width);
+	var newObj="<table id='"+botID+"' objNum='"+botNum+"' name='bot' style='position:absolute;left:"+botX+";top:"+botY+";z-index:"+botZ+";'><tr>";
+	newObj+="<td valign='top'><div id='"+objID+"' objNum="+botNum+" colorBot='"+color+"' botHeight='"+height+"' botWidth='"+width+"' botShape='"+shape+"' class='"+shape+"' onmousedown='dragObject(event)'>&nbsp;</div></td>";
+	newObj+="<td valign='top'><table id='"+talkBubbleID+"' class='talkBox' objNum="+botNum+" style='position:relative;left:10px;top:5px;z-index:6;opacity:0;'><tr>";
+	newObj+="<td valign='top' id='"+talkID+"' objNum="+botNum+"></td>";
+	if(controlMode==1){
+		newObj+="<td valign='top'><div id='"+closeID+"' style='display:inline;' class='closeX' objNum='"+botNum+"' actionType='1001' onclick='auxToAction(event)'>X</div></td>";
+	}
+	else{
+		newObj+="<td valign='top'><div id='"+closeID+"' style='display:none;' class='closeX' objNum='"+botNum+"' actionType='1001' onclick='auxToAction(event)'>X</div></td>";
+	}
+	newObj+="</tr></table></td>";
+	newObj+="</tr></table>";
+	return newObj;
+}
+
+function duplicateBot(getBotNum)
+{
+	var getBotID="bot"+getBotNum
+	var getObjID="obj"+getBotNum;
+	var getTalkID="talk"+getBotNum;
+	var objCopy=browseAdj(getObjID);
+	//get bot information
+	var width=objCopy.getAttribute("botWidth");
+	var height=objCopy.getAttribute("botHeight");
+	var shape=objCopy.getAttribute("botShape");
+	var color=objCopy.getAttribute("colorBot");
+	var animation=browseAdj(getBotID).getAttribute("animeType");
+	var talk=browseAdj(getTalkID).innerHTML;
+	//get random position near copied bot
+	var botX=parseInt(browseAdj(getBotID).style.left);
+	var botY=parseInt(browseAdj(getBotID).style.top);
+	var getPosNear=posNear(botX,botY,height,width);
+	var gPN2=getPosNear.split("~");
+	//recreate bot
+	var duplicateBot=returnBot2(countObj,gPN2[0],gPN2[1],height,width,shape,color);
+	browseAdj("movieEnvironment").innerHTML+=duplicateBot;
+	var getObjID="obj"+countObj;
+	getStyle2(getObjID,width,height);
+	//add data to ArrayString
+	var relPos=findRelativePos(gPN2[0],gPN2[1])
+	var actionStr="m+*"+relPos[0]+"~"+relPos[1];
+	modifyArrayString(countObj,frameNum,actionStr);
+	//add talk box
+	if(talk!=""){
+		var talkStr="t+*"+talk;
+		showTalkBubble(countObj,talk);
+		modifyArrayString(countObj,frameNum,talkStr);
+	}
+	//add animation
+	if(animation!=null){
+		var animeStr="a+*"+animation;
+		addAnimation(countObj,animation);		//0 - remove animations, 1 - side to side, 2 - up & down, 3 - pulsate
+		modifyArrayString(countObj,frameNum,animeStr);
+	}
+	//increment up countObj
+	countObj++;
+}
+
+function posNear(nearX,nearY,height,width)
+{
+	var closeX,closeY;
+	var xRangeCoefficient=width;
+	var yRangeCoefficient=height;
+	//get random # for x position. 0 = left, 1 = right
+	var chooseX=Math.round(Math.random());
+	if(chooseX==0){closeX=nearX-(Math.random()*xRangeCoefficient);}
+	else{closeX=nearX+(Math.random()*xRangeCoefficient);}
+	//get random # for y position. 0 = top, 1 = bottom
+	var chooseY=Math.round(Math.random());
+	if(chooseY==0){closeY=nearY-(Math.random()*yRangeCoefficient);}
+	else{closeY=nearY+(Math.random()*yRangeCoefficient);}
+
+	var strRandPos=closeX+"~"+closeY;
+	return strRandPos;
+}
+
+function getBotZ(height,width)
+{
+	var botZ=height*width;
+	var resultZ=maxZ-botZ;		//maxZ is a global variable
+
+	return resultZ;
+}
+
+function getStyle2(getObjID,sizeX,sizeY)
+{
+      var getBotShape=browseAdj(getObjID).getAttribute("class");
+      var getColor=browseAdj(getObjID).getAttribute("colorBot");
+	  var halfSize=sizeY/2;
+	  var fullBorder=sizeY+"px solid "+getColor;
+	  var halfBorder=halfSize+"px solid transparent";
+	  if(getBotShape=="objCircle")
+	  {
+		browseAdj(getObjID).style.backgroundColor=getColor; 
+		browseAdj(getObjID).style.width=sizeX; 
+	  	browseAdj(getObjID).style.height=sizeY;
+	  	browseAdj(getObjID).style.borderRadius=halfSize;
+	  	browseAdj(getObjID).style.MozBorderRadius=halfSize;
+	  	browseAdj(getObjID).style.WebkitBorderRadius=halfSize;
+	  }
+	  else if(getBotShape=="objTriUp")
+	  {
+		browseAdj(getObjID).style.borderBottom=fullBorder;
+		browseAdj(getObjID).style.borderLeft=halfBorder; 
+	  	browseAdj(getObjID).style.borderRight=halfBorder;
+	  }
+	  else if(getBotShape=="objTriDown")
+	  {
+		browseAdj(getObjID).style.borderTop=fullBorder;
+		browseAdj(getObjID).style.borderLeft=halfBorder; 
+	  	browseAdj(getObjID).style.borderRight=halfBorder;
+	  }
+	  else if(getBotShape=="objTrapezoidUp")
+	  {
+		browseAdj(getObjID).style.width=sizeY;
+		browseAdj(getObjID).style.borderBottom=fullBorder;
+		browseAdj(getObjID).style.borderLeft=halfBorder; 
+	 	browseAdj(getObjID).style.borderRight=halfBorder;
+	  }
+	  else if(getBotShape=="objTrapezoidDown")
+	  {
+	    browseAdj(getObjID).style.width=sizeY;
+		browseAdj(getObjID).style.borderTop=fullBorder;
+		browseAdj(getObjID).style.borderLeft=halfBorder; 
+	 	browseAdj(getObjID).style.borderRight=halfBorder;
+	  }
+	  else 	//objSquare
+	  {
+		browseAdj(getObjID).style.backgroundColor=getColor; 
+		browseAdj(getObjID).style.width=sizeX; 
+	  	browseAdj(getObjID).style.height=sizeY;
+	  }
+}
+
+function removeObject(objNum)
+{
+	//get bot information
+	var JQobjID="#bot"+objNum;
+	//get position
+	var getRandPos=randOutScreenPos(objNum);
+	var randPos=getRandPos.split("~");
+	var posX=parseInt(randPos[0]);
+	var posY=parseInt(randPos[1]);
+	$(function(event){
+		$(JQobjID).animate({left:posX,top:posY});	
+	});
+}
+
+function animationWithDelay(allBotStr,index)
+{
+	var animeBots=new Array();
+	animeBots=allBotStr.split(";");
+	if(index<animeBots.length)
+	{
+		var strOI,botOI,animeNum,index2;
+		var splitOI=new Array();
+		//split into an array - string will look like "0:2;1:1;2:4;..." where botNum:animationType & the semicolon separates these pairs
+		//get string of interest
+		strOI=animeBots[index];
+		//split string into botNum & animation type
+		splitOI=strOI.split(":");
+		addAnimation(splitOI[0],splitOI[1]);
+		//call itself to implement delay
+		setTimeout(function(){
+			index2=index+1;
+			animationWithDelay(allBotStr,index2);},200); 
+	}
+}
+
+function addAnimation(objNum,animeNum)
+{
+	//get botID
+	var botID="bot"+objNum;
+	//find animation type
+	if((animeNum==0) && (browseAdj(botID).getAttribute("class")!=null)){browseAdj(botID).removeAttribute("animeType");
+		browseAdj(botID).removeAttribute("class");}
+	else if(animeNum==1){browseAdj(botID).setAttribute("animeType",animeNum);
+		browseAdj(botID).setAttribute("class","horizontalPace");}
+	else if(animeNum==2){browseAdj(botID).setAttribute("animeType",animeNum);
+		browseAdj(botID).setAttribute("class","verticalPace");}
+	else if(animeNum==3){browseAdj(botID).setAttribute("animeType",animeNum);
+	browseAdj(botID).setAttribute("class","pulsate");}
+	else if(animeNum==4){browseAdj(botID).setAttribute("animeType",animeNum);
+	browseAdj(botID).setAttribute("class","spin");}
+}
+
+//move object
+function dragObject(e)
+{
+	if(controlMode==1){
+	mouseOrig(e);
+	isdown=true;
+	objInfo=isIE ? e.srcElement : e.target;
+	var countObj=objInfo.getAttribute("objNum");
+	var botID="bot"+countObj;
+	objElement=browseAdj(botID);
+	//record original position
+	var iX=parseInt(objElement.style.left);
+    var iY=parseInt(objElement.style.top);
+    offsetx=xOrig-iX;
+    offsety=yOrig-iY;
+	//onmousemove
+	document.onmousemove=moveObject;
+	//onmouseup
+	document.onmouseup=function()
+    {
+		isdown=false;
+		clearJSEvents();
+		//save changes to move
+		var xPos=parseInt(objElement.style.left);
+		var yPos=parseInt(objElement.style.top);
+		//if object didn't move that much, then show pop up menu
+		var changeX=Math.abs(xPos-iX);
+		var changeY=Math.abs(yPos-iY);
+		if(changeX<=1 && changeY<=1){
+			//need to know which action brush is being used
+			paintAction(e);
+			//popUpActionBox(e);
+		}
+		else{
+			var getPos=findRelativePos(xPos,yPos);
+			var actionStr="m+*"+getPos[0]+"~"+getPos[1];
+			//add data to ArrayString
+			modifyArrayString(countObj,frameNum,actionStr);
+		}
+  	}
+	}
+}
+
+function moveObject(e){
+	  if (!isdown) return; 
+	  objElement.style.left=isIE ? event.clientX-offsetx+currentXScroll : e.clientX-offsetx+currentXScroll; 
+	  objElement.style.top=isIE ? event.clientY-offsety+currentYScroll : e.clientY-offsety+currentYScroll;
+	  //objElement.style.left=isIE ? event.clientX : e.clientX; 
+	  //objElement.style.top=isIE ? event.clientY : e.clientY;
+	  return false;  
+}
+
+function displayTalkX(stat)
+{
+	var bots,getObjNum,closeXID;
+	if(stat==0)		//in Preview mode
+	{
+		//get all bots
+		bots=document.getElementsByName("bot");
+		//remove 'closeX' from boxes
+		for(i=0;i<bots.length;i++)
+		{
+			getObjNum=bots[i].getAttribute("objNum");
+			closeXID="closeX"+getObjNum;
+			//will return "null" if browseAdj(closeXID) is not present
+			if(browseAdj(closeXID)){browseAdj(closeXID).style.display="none";}
+		}
+	}
+	else
+	{
+		//get all bots
+		bots=document.getElementsByName("bot");
+		//remove 'closeX' from boxes
+		for(i=0;i<bots.length;i++)
+		{
+			getObjNum=bots[i].getAttribute("objNum");
+			closeXID="closeX"+getObjNum;
+			//will return "null" if browseAdj(closeXID) is not present
+			if(browseAdj(closeXID)){browseAdj(closeXID).style.display="inline";}
+		}
+	}
+}
+
+function showTalkBubble(objNum,dialog)
+{
+	var dialogBox=dialog;
+	var visTop="-=15";
+	var visLeft="-=10";
+	var invisTop="+=15";
+	var invisLeft="+=10";
+	var talkID="talk"+objNum;
+	var bubbleID="talkBubble"+objNum;
+	var JQtalkID="#"+bubbleID;
+	//modify dialog if in edit mode
+	/*
+	if(controlMode==1){dialogBox=dialog+"&nbsp;&nbsp;<span id='closeX"+objNum+"' style='display:inline;' class='closeX' objNum='"+objNum+"' actionType='1001' onclick='auxToAction(event)'>X</span>";}
+	else{dialogBox=dialog+"&nbsp;&nbsp;<span id='closeX"+objNum+"' style='display:none;' class='closeX' objNum='"+objNum+"' actionType='1001' onclick='auxToAction(event)'>X</span>";}
+	*/
+	//scenarios: 1-newly appeared, 2-change appeared box, 3-make talkBubble disappear
+	if(browseAdj(bubbleID).style.opacity!=0)	//if talkBubble is currently visible
+	{
+		if(dialog!="[VOIDNULL]" && dialog!="[ERASE]")
+		{
+			$(function(event){
+				//$(JQtalkID).animate({opacity:0,top:'+=25'});
+				$(JQtalkID).animate({opacity:0,top:invisTop,left:invisLeft}, function(){browseAdj(talkID).innerHTML=dialogBox;}).animate({opacity:1,top:visTop,left:visLeft});
+				//$("#uploadPictureBox").animate({opacity:1,left:'-=10',top:'-=30'}, function(){browseAdj("popUpArea").innerHTML=uploadPicBox;});			
+			});
+		}
+		else
+		{
+			$(function(event){
+				$(JQtalkID).animate({opacity:0,top:invisTop,left:invisLeft}, function(){browseAdj(talkID).innerHTML="";});
+			});
+		}
+	}
+	else		//else if talkBubble isn't visible
+	{
+		//add new dialogue box
+		if(dialog!="[VOIDNULL]" && dialog!="[ERASE]")
+		{
+			browseAdj(talkID).innerHTML=dialogBox;
+			$(function(event){
+				$(JQtalkID).animate({opacity:1,top:visTop,left:visLeft});	
+			});
+		}
+	}
+}
+
+//FRAME CONTROL FUNCTIONS
+//finds absolute position of object by summating position of all parent nodes
+function findAbsPosition(obj)
+{
+	var posLeft=0;
+	var posTop=0;
+	while(obj && (obj.nodeType!=9))
+	{
+		posLeft+=obj.offsetLeft;
+		posTop+=obj.offsetTop;
+		obj=obj.parentNode;
+	}
+	return [posLeft, posTop];
+}
+
+//move scrollbox
+function dragScrollBar(e)
+{		
+	dragBar=isIE ? e.srcElement : e.target;		//global variable dragBar
+	var getFBOSX=findAbsPosition(browseAdj("frameControl"));  //get frame bar offset x
+	frameBarOffSetX=getFBOSX[0];
+	FPratio=totalFrame/barLength;
+	var origFrameNum=Math.round(parseInt(dragBar.style.left)*(FPratio));
+	//get current scroll bar position
+	
+	//alert("dSB: "+frameBarOffSetX+" | "+FPratio);
+	//get object
+	frameScroll=true;
+	//get its current position - frame # or position?
+	//onmousemove - drag object
+	document.onmousemove=moveBar;
+	//onmouseup 
+	document.onmouseup=function()
+    {
+		if(updateChange==1)
+		{
+			convertToArray();
+			updateChange=0;
+		}
+		//scrolling frame is false
+		frameScroll=false;
+		//record new frame position
+		frameNum=Math.round(parseInt(dragBar.style.left)*(FPratio));
+		positionKnob(frameNum);
+		playByFrame(origFrameNum,frameNum);
+		/*
+		browseAdj("frameKnob").innerHTML="<span style='color:#222222;'>"+frameNum+"</span>";
+		//set bar to position
+		dragBar.style.left=(frameNum/totalFrame)*barLength;
+		*/
+  	}
+}
+
+function moveBar(e){
+	if (!frameScroll) return;
+	//objElement.style.left=isIE ? event.clientX-offsetx : e.clientX-offsetx; 
+	//objElement.style.top=isIE ? event.clientY-offsety : e.clientY-offsety;
+	dragBar.style.left=isIE ? event.clientX-frameBarOffSetX : e.clientX-frameBarOffSetX;
+	var checkBarPos=parseInt(dragBar.style.left);
+	browseAdj("frameKnob").innerHTML="<span style='font:16px Rockwell, 'Courier New', Courier, Georgia, serif;color:#982135;'>"+Math.round(checkBarPos*(FPratio))+"</span>";
+	if(checkBarPos<=0){dragBar.style.left=0;}
+	else if(checkBarPos>=barLength){dragBar.style.left=barLength;}
+	return false;  
+}
+
+function goToFrame(e)
+{
+	frameInfo=isIE ? e.srcElement : e.target;
+	frameNum=parseInt(frameInfo.getAttribute("frameNum"));
+	trackADM(e);
+	positionKnob(frameNum);
+}
+
+function positionKnob(frameNum)
+{
+	//displayFrameNum
+	browseAdj("displayFrameNum").innerHTML="&nbsp;"+frameNum+" of "+totalFrame;
+	//position knob for scroll frame bar
+	browseAdj("frameKnob").innerHTML="<span style='font:16px Rockwell, 'Courier New', Courier, Georgia, serif;color:#982135;'>"+frameNum+"</span>";
+	//set bar to position
+	//browseAdj("frameKnob").style.left=(frameNum/totalFrame)*barLength;
+	var frameScrollX=(frameNum/totalFrame)*barLength;
+	$(function(event){
+		$("#frameKnob").animate({left:frameScrollX});	
+	});
+}
+
+function addTenFrames()
+{
+	totalFrame=parseInt(totalFrame)+10;
+	totalFrame=parseInt(totalFrame);		//ensure totalFrame is an integer
+	FPratio=totalFrame/barLength;
+	browseAdj("displayFrameNum").innerHTML="&nbsp;"+frameNum+" of "+totalFrame;
+	//need to adjust actionArray
+	convertToArray();
+	//add ten to ADMArray
+	augmentADMBar(totalFrame);
+}
+
+//FULLSCREEN FRAME CONTROL FUNCTIONS
+function setControls()
+{
+	//see type: 1 - edit, 2- play
+	//set controls
+	if(controlMode==1)
+	{
+		//browseAdj("playButton").setAttribute("onclick","playMovie()");
+		browseAdj("controlModeToggle").innerHTML="Preview";
+		browseAdj("controlModeToggle").style.backgroundColor="#D06692";
+		controlMode=2;
+		//convertToArray();
+		displayTalkX(0);
+	}
+	else
+	{
+		//browseAdj("playButton").setAttribute("onclick","");
+		browseAdj("controlModeToggle").innerHTML="Edit";
+		browseAdj("controlModeToggle").style.backgroundColor="#5CA4F5";
+		controlMode=1;
+		displayTalkX(1);
+	}
+}
+
+//MOVIE FUNCTIONS
+function clearMovieTimer()
+{
+	clearInterval(movieTimer);
+}
+
+function playMovie()
+{
+	//set frameNum to last frame
+	clearInterval(movieTimer);
+	frameNum=totalFrame-1;
+	movieTimer=setInterval("checkPlay(1)",2000);
+}
+
+function checkPlay(direction)
+{
+	if(playCount<=totalFrame-1)
+	{
+		nextFrame(direction);
+		playCount++;
+	}
+	else
+	{
+		clearInterval(movieTimer);
+		playCount=0;
+	}
+}
+
+function nextFrame(step)
+{
+	var frame1,frame2;
+	if(step==0){frameNum=frameNum;
+	frame1=frameNum;
+	frame2=frameNum;}
+	else if(step==-1)
+	{
+		if(frameNum<=0){frame1=0;
+		frame2=totalFrame-1;
+		frameNum=totalFrame-1}
+		else{frame1=frameNum;
+		frame2=frameNum+step;
+		frameNum=frameNum+step;}
+	}
+	else if(step==1)
+	{
+		if(frameNum>=totalFrame-1){frame1=totalFrame-1;
+		frame2=0;
+		frameNum=0;}
+		else{frame1=frameNum;
+		frame2=frameNum+step;
+		frameNum=frameNum+step;}
+	}
+	if(updateChange==1)
+	{
+		convertToArray();
+		updateChange=0;
+	}
+	playByFrame(frame1,frame2);
+}
+
+function playByFrame0(frame2)
+{
+	var pF=1;		//proceed forward
+	var objID,JQobjID,elementStr,colonArray;
+	var array1,array2;
+	var animeBotStr="";
+	//access array with actions (row=frame, col=obj)
+	for(y=0;y<actionArray[frame2].length;y++)
+	{
+		objID="bot"+y;
+		JQobjID="#"+objID;
+		//check position
+		if(actionArray[frame2][y].position!="")
+		{
+			browserSize();
+			array2=actionArray[frame2][y].position.split("~");
+			var xPos=array2[0]*widthOfWindow;
+			var yPos=array2[1]*heightOfWindow;
+			$(function(event){
+				$(JQobjID).animate({left:xPos,top:yPos});	
+			});
+		}
+		//check talk
+		if(actionArray[frame2][y].talk!="")
+		{
+			showTalkBubble(y,actionArray[frame2][y].talk);		
+		}
+		//check animation
+		if(actionArray[frame2][y].animation!="")
+		{
+			//addAnimation(y,actionArray[frame2][y].animation);
+			animeBotStr+=y+":"+actionArray[frame2][y].animation+";";		//needed for animationWithDelay		
+		}
+	}
+	animationWithDelay(animeBotStr,0);
+	positionKnob(frame2);
+}
+
+function playByFrame(frame1,frame2)
+{
+	var TESTSTR="";
+	var pF=1;		//proceed forward
+	var objID,JQobjID,elementStr,colonArray;
+	var array1,array2;
+	var animeBotStr="";
+	/*
+	TESTSTR+="Frames: "+frame1+" to "+frame2+"<br/>";
+	browseAdj("arrayText").innerHTML=TESTSTR;
+	TESTSTR+="actionArray: "+actionArray.length+" | "+actionArray[frame2].length+"<br/>";
+	browseAdj("arrayText").innerHTML=TESTSTR;
+	*/
+	//access array with actions (row=frame, col=obj)
+	for(y=0;y<actionArray[frame2].length;y++)
+	{
+		objID="bot"+y;
+		JQobjID="#"+objID;
+		/*
+		TESTSTR+="FrameNum: "+frame2+" | botNum: "+y+" - ";
+		browseAdj("arrayText").innerHTML=TESTSTR;
+		*/
+		//check position
+		if(actionArray[frame2][y].position!=actionArray[frame1][y].position)
+		{
+			browserSize();
+			array2=actionArray[frame2][y].position.split("~");
+			var xPos=array2[0]*widthOfWindow;
+			var yPos=array2[1]*heightOfWindow;
+			$(function(event){
+				$(JQobjID).animate({left:xPos,top:yPos});	
+			});
+		}
+		//check talk
+		if(actionArray[frame2][y].talk!=actionArray[frame1][y].talk)
+		{
+			showTalkBubble(y,actionArray[frame2][y].talk);		
+		}
+		//check animation
+		if(actionArray[frame2][y].animation!=actionArray[frame1][y].animation)
+		{
+			//addAnimation(y,actionArray[frame2][y].animation);	
+			animeBotStr+=y+":"+actionArray[frame2][y].animation+";";		//needed for animationWithDelay
+		}
+		/*
+		TESTSTR+="Good<br/>";
+		browseAdj("arrayText").innerHTML=TESTSTR;
+		*/
+	}
+	/*
+	browseAdj("arrayText").innerHTML=TESTSTR;
+	TESTSTR+="ActionArray Done<br/>";
+	browseAdj("arrayText").innerHTML=TESTSTR;
+	*/
+	animationWithDelay(animeBotStr,0);
+	/*
+	TESTSTR+="aWD DONE<br/>";
+	browseAdj("arrayText").innerHTML=TESTSTR;
+	*/
+	positionKnob(frame2);
+	/*
+	TESTSTR+="pK Done<br/>";
+	browseAdj("arrayText").innerHTML=TESTSTR;
+	*/
+}
+
+//ADM FUNCTIONS
+function augmentADMBar(totalFrameNum)
+{
+	var cellWidth,ADMBar,startI;
+	var activeADMFrames=new Array();
+	var allADMFrames=new Array();
+	//get activated AIM frames
+	activeADMFrames=retrieveNodeArray("ADMframe","ADMstat","a");
+	//find # of frames to find width of each cell
+	//var ADMLength=parseInt(browseAdj("ADMArea").style.width);
+	cellWidth=barLength/totalFrameNum;
+	//add ten columns to the ADMBar
+	ADMBar="<table border='0' cellspacing='2' cellpadding='2'><tr>";
+	for(i=0;i<totalFrameNum;i++)
+	{
+		ADMBar+="<td id='ADM"+i+"' class='AIMframe' style='width:"+cellWidth+";background-color:#AAAAAA;' name='ADMframe' frameNum='"+i+"' ADMstat='s' onmouseover='showADMFrameNum(event)' onclick='goToFrame(event)'></td>";
+	}
+	ADMBar+="</tr></table>";
+	//resize all table cells
+	/*
+	while(document.getElementsByName("ADMframe"))
+	{
+		this.style.width=cellWidth;
+	}
+	*/
+	//highlight all AIM frames
+	browseAdj("ADMArea").innerHTML=ADMBar;
+	var activeADMID;
+	for(j=0;j<activeADMFrames.length;j++)
+	{
+		activeADMID=activeADMFrames[j].getAttribute("id");
+		browseAdj(activeADMID).setAttribute("ADMstat","a");
+		browseAdj(activeADMID).style.backgroundColor="#D4324D";
+	}
+}
+
+/*
+function ADMselector()
+{
+	if(browseAdj("ADMFSB").innerHTML=="ADM Off")
+	{
+		ADMSelectStat=true;
+		browseAdj("ADMFSB").innerHTML="ADM On";
+	}
+	else
+	{
+		ADMSelectStat=false;
+		browseAdj("ADMFSB").innerHTML="ADM Off";
+	}	
+}
+*/
+
+function showADMFrameNum(e)
+{
+	var getInfo,displayFN,yOrig2,currFrame;
+	currFrame=-1;
+	//get position of mouse
+	mouseOrig(e);
+	ADMover=true;
+	getInfo=isIE ? e.srcElement : e.target;
+	//display frameNum
+	yOrig2=yOrig-30;
+	displayFN="<div id='displayADMFrame' style='position:absolute;left:"+xOrig+";top:"+yOrig2+";z-index:10;'>"+getInfo.getAttribute("frameNum")+"</div>";
+	browseAdj("popUpArea").innerHTML=displayFN;
+	$(function(event){
+		$("#displayADMFrame").animate({opacity:1,top:'-=20'});	
+	});
+	//select frames if ADM selector is ON!
+	/*
+	if(ADMSelectStat==true)
+	{	
+		trackADM(e);
+	}
+	*/
+	//document.onmousemove=moveHover;
+	document.onmouseout=function(){
+		ADMover=false;
+		clearHover();
+		resetMouseEvents();
+	}
+}
+
+function moveHover(e){
+	  getX=isIE ? event.clientX : e.clientX;
+	  getY=isIE ? event.clientY : e.clientY;	 
+	  browseAdj("displayADMFrame").style.left=getX;
+	  browseAdj("displayADMFrame").style.top=getY-20;	  
+	  //browseAdj("infoBox").style.top=isIE ? event.clientY-offsety3 : e.clientY-offsety3; 
+	  //browseAdj("infoBox").style.left=isIE ? event.clientX-offsetx3 : e.clientX-offsetx3;
+	  //isIE ? currentY+event.clientY-offsety : currentY+e.clientY-offsety;	  
+	  return false;
+}
+
+function clearHover()
+{
+	if(ADMover==false){
+	$(function(event){
+		$("#displayADMFrame").animate({opacity:0,top:'+=20'});	
+	});
+	}
+}
+
+//this function allows users to select ADM frames with the onmousedown event - DOESNT' WORK
+function dragTrackADM(e)
+{
+	var currFrame=-1;
+	isdownADM=true;
+	alert("dtA1");
+	document.onmouseover=function(e){
+		alert("dtA2");
+		fIMO=isIE ? e.srcElement : e.target;	//frame info mouse over
+		if(currFrame!=fIMO.getAttribute("frameNum") && isdownADM)
+		{
+			currFrame=fIMO.getAttribute("frameNum");
+			trackADM(e);
+		}
+		alert("dtA3");
+	}
+	document.onmouseup=function(){
+		isdownADM=false;
+		resetMouseEvents();
+	}
+}
+
+//define the frames where AIM will take place
+function trackADM(e)
+{
+	var getInfo=isIE ? e.srcElement : e.target;
+	//change ADM stat of box
+	if(getInfo.getAttribute("ADMstat")=="s")	//change to ADM
+	{
+		getInfo.setAttribute("ADMstat","a");
+		getInfo.style.backgroundColor="#D4324D";
+	}
+	else		//change to stand still
+	{
+		getInfo.setAttribute("ADMstat","s");
+		getInfo.style.backgroundColor="#AAAAAA";
+	}
+}
+
+function ADM(botNum)
+{
+	var botID,frameOI;
+	//elem1 = the initial frame or frame immediately after an AIM frame
+	//elem2 = the AIM frame after elem1
+	var elem1,elem2;
+	var trackADMArray=new Array();
+	for(a=0;a<totalFrame;a++)
+	{
+		trackADMArray[a]=0;
+	}
+	//STEP 1: get all ADM frames, and label trackADMArray with 0's & 1's, 0=no AIM, 1=AIM frame
+	var getADMFrameArray=retrieveNodeArray("ADMframe","ADMstat","a");
+	for(b=0;b<getADMFrameArray.length;b++)
+	{
+		trackADMArray[getADMFrameArray[b].getAttribute("frameNum")]=1;
+	}
+	
+	var displayArray="";
+	for(z=0;z<trackADMArray.length;z++)
+	{
+		displayArray+=trackADMArray[z]+"<br/>";
+	}
+	
+	//STEP 4: Traverse array, finding 1's, & fill in the gaps
+	elem1=0;
+	for(a=0;a<trackADMArray.length;a++)
+	{
+		if(trackADMArray[a]==1)	//find element with "1"
+		{
+			elem2=a;
+			AIMFrames(elem1,elem2,botNum);
+			elem1=a+1;
+		}
+	}
+}
+
+function AIMFrames(elem1,elem2,botNum)
+{
+	var getPos1,pos1,pos2,posX1,posY1,posX2,posY2;
+	var stepX,stepY,AIMX,AIMY;
+	var TESTSTR="";
+	//get bot positions from element 1
+	//if(actionArray[elem1][botNum].position==""){actionArray[elem1][botNum].position="-100~-100";}
+	getPos1=findLastPos(elem1,botNum);
+	pos1=getPos1.split("~");
+	posX1=parseFloat(pos1[0]);
+	posY1=parseFloat(pos1[1]);
+	//get bot positions from element 2
+	if(actionArray[elem2][botNum].position==""){//alert("AIMF: "+elem2+" | "+botNum);
+		//actionArray[elem2][botNum].position=relativeRandOutScreenPos(botNum);
+		actionArray[elem2][botNum].position=findLastPos(elem1,botNum);}
+	pos2=actionArray[elem2][botNum].position.split("~");
+	posX2=parseFloat(pos2[0]);
+	posY2=parseFloat(pos2[1]);	
+	//step for each frame - step=(Pos2-Pos1)
+	//need "+1" because want the first frame to be incremented by stepX/stepY
+	/*
+	browserSize();
+	stepX=((posX2-posX1)*widthOfWindow)/(elem2-elem1+1);
+	stepY=((posY2-posY1)*heightOfWindow)/(elem2-elem1+1);
+	*/
+	//same as Distance=Rate*Time, where Position=step*frameSpan
+	var frameSpan=elem2-elem1;
+	if(frameSpan<=0){frameSpan=1;}
+	stepX=(posX2-posX1)/frameSpan;
+	stepY=(posY2-posY1)/frameSpan;
+	//TESTSTR+=elem1+" to "+elem2+" | posX1: "+posX1+" posY1: "+posY1+" posX2: "+posX2+" posY2: "+posY2+" | stepX: "+stepX+" & stepY: "+stepY+"<br/>";
+	//browseAdj("arrayText").innerHTML+=TESTSTR;
+	//generate movements via AIM
+	for(i=elem1;i<=elem2;i++)
+	{
+		AIMX=((i-elem1)*stepX)+posX1;
+		AIMY=((i-elem1)*stepY)+posY1;
+		actionArray[i][botNum].position=AIMX+"~"+AIMY;
+	}
+}
+
+function findLastPos(frameIndex,botNum)
+{
+	var reverseI;
+	var posStat=false;
+	var getPos="";
+	var counter=0;
+	while(counter<=frameIndex)
+	{
+		reverseI=frameIndex-counter;	
+		if(actionArray[reverseI][botNum].position!="")
+		{
+			posStat=true;
+			//capture position
+			getPos=actionArray[reverseI][botNum].position;
+			//break out of loop
+			break;
+		}
+		counter++;
+	}
+
+	if(!(posStat)){//alert("fLP: "+frameIndex+" | "+botNum);
+		getPos=relativeRandOutScreenPos(botNum);}
+
+	return getPos;
+}
+
+function controlMenu(e)
+{
+	mouseOrig(e);
+	var yOrig2=yOrig-80;
+	var displayMenu="<table id='controlMenuBox' style='position:absolute;left:"+xOrig+";top:"+yOrig2+";z-index:"+maxZ+";background-color:#333333;'>";
+	displayMenu+="<tr><td>Menu</td><td><div class='closeX' onclick='closePopUps()'>X</div></td></tr>";
+	displayMenu+="<tr><td colspan='2' class='buttonGray' id='ADMFSB' onclick='ADMselector()' stat='0'>AIM Off</td></tr>";
+	displayMenu+="<tr><td colspan='2' class='buttonGray' onclick='getDataStr(event)'>Get Data String</td></tr>";
+	displayMenu+="<tr><td colspan='2'><div style='width:100%;height:1px;background-color:#D4324D;'></div></td></tr>";
+	displayMenu+="<tr><td colspan='2'>Enter Data</td></tr>";
+	displayMenu+="<tr><td colspan='2'><textarea id='actionScript' class='textField'></textarea></td></tr>";
+	displayMenu+="<tr><td colspan='2' class='buttonGray' style='background-color:#5CA4F5;' onclick='setDataStr();closePopUps();'>Submit</td></tr>";
+	displayMenu+="<tr><td colspan='2'></td></tr>";
+	displayMenu+="</table>";
+	browseAdj("popUpArea").innerHTML=displayMenu;
+}
+
+function controlStoryMenu(e)
+{
+	mouseOrig(e);
+	var yOrig2=yOrig-80;
+	var displayMenu="<table id='controlMenuBox' style='position:absolute;left:"+xOrig+";top:"+yOrig2+";z-index:"+maxZ+";background-color:#333333;'>";
+	displayMenu+="<tr><td>Story Menu</td><td><div class='closeX' onclick='closePopUps()'>X</div></td></tr>";
+	displayMenu+="<tr><td colspan='2'><div style='width:100%;height:1px;background-color:#D4324D;'></div></td></tr>";
+	displayMenu+="<tr><td colspan='2'>Enter Story</td></tr>";
+	displayMenu+="<tr><td colspan='2'><textarea id='storyScript' class='textField'></textarea></td></tr>";
+	displayMenu+="<tr><td colspan='2' class='buttonGray' style='background-color:#5CA4F5;' onclick='setStory();closePopUps();'>Submit</td></tr>";
+	displayMenu+="<tr><td colspan='2'></td></tr>";
+	displayMenu+="</table>";
+	browseAdj("popUpArea").innerHTML=displayMenu;
+}
+
+function setScreen()
+{
+	browserSize();
+	//get heights of top & bottom segments
+	var logoHeight=50;
+	var controlHeight=150;
+	var movieHeight=heightOfWindow-logoHeight-controlHeight;
+	var widthUnit=widthOfWindow/5;
+	//set dimensions for top & bottom
+	browseAdj("logoBar").style.width=widthOfWindow;
+	browseAdj("controlAreaButtons").style.width=widthUnit;
+	browseAdj("controlAreaScroll").style.width=widthUnit*4;
+		//set frameScrollBar & AIM bar
+		browseAdj("frameBar").style.width=widthUnit*4;
+		browseAdj("ADMArea").style.width=widthUnit*4;
+	//set dimensions for movie area
+	browseAdj("movieEnvironment").style.width=widthOfWindow;
+	browseAdj("movieEnvironment").style.height=movieHeight;
+}
+
+function initiateActionArray()
+{
+	actionArray=new Array(totalFrame);
+	for(i=0;i<totalFrame;i++)
+	{
+		actionArray[i]=new Array(largestCol);
+	}
+	//initiate array
+	for(a=0;a<totalFrame;a++)
+	{
+		for(b=0;b<largestCol;b++)
+		{
+			actionArray[a][b]=new Bot("","","","","","","");
+		}
+	}
+}
+
+function tempInitiation()
+{
+	browserSize();
+	//maxZ - used for z-index for object. Do not want to change this during resize because if maxZ changes, then maxZ<botZ --> negative Z.
+	maxZ=widthOfWindow*heightOfWindow;
+	initiateActionArray();	//need to initiate array
+	//nextFrame(0);		//set frameTracker
+	//set segments of each area
+	setScreen();
+	barLength=parseInt(browseAdj("frameBar").style.width);
+	//centerControlArea();
+	//start ADM area
+	augmentADMBar(totalFrame);
+	positionKnob(0);
+}
+
+function resizeWindow()
+{
+	//set dimensions of working area
+	setScreen();
+	//set width of window
+	barLength=widthOfWindow;	
+	//centerControlArea();
+	//start ADM area
+	augmentADMBar(totalFrame);
+}
+
+function undoAction()
+{
+	var actionInfo;
+	var UAStr=arrayString;
+	//STEP 1 - go to action array string - get last action
+	var getActionArray=UAStr.split(";");
+	var lastEle=getActionArray.length-2;
+	var lastAction=getActionArray[lastEle];
+	//STEP 2 - Find frame to revert bot to it's previous state. Each state is separate (i.e. move, talk) - also, move to the frame last stated in array string
+	//get botNum & actionType
+	var LAComps=lastAction.split(":");	//last action components
+	var LAFrame=LAComps[0];
+	var LABotNum=LAComps[1];
+	var LAType=LAComps[2].substr(0,2);
+	//go through the array backwards, looking for same botNum & actionType
+	var checkComps,bN,aT;
+	var lastStateFrame=null;
+	for(a=lastEle-1;a>=0;a--)
+	{
+		checkComps=getActionArray[a].split(":");
+		aT=checkComps[2].substr(0,2);	//actionType
+		if(LABotNum==checkComps[1] && LAType==aT)
+		{
+			lastStateFrame=a;
+			break;
+		}
+	}
+	//STEP 3 - revert animation to it's previous state
+	if(lastStateFrame!=null)
+	{
+		//3 potential action types - move (includes adding bot), talk, or animation
+		actionInfo=checkComps[2].substr(3);
+		//if move, then move back to previous position
+		if(LAType=="m+"){moveToPrevState(LABotNum,actionInfo);}
+		//if talk, then get previous dialogue from bot
+		else if(LAType=="t+"){showTalkBubble(LABotNum,actionInfo);}
+		//if animation, then get previous animation from bot
+		else if(LAType=="a+"){addAnimation(LABotNum,actionInfo);}
+	}
+	else
+	{
+		//3 potential action types - move (includes adding bot), talk, or animation
+		//if move, then move back to previous position
+		if(LAType=="m+"){
+			var removeBotPos=randOutScreenPos(LABotNum);
+			moveToPrevState(LABotNum,removeBotPos);
+		}
+		//if talk, then get previous dialogue from bot
+		else if(LAType=="t+"){showTalkBubble(LABotNum,"[ERASE]");}
+		//if animation, then get previous animation from bot
+		else if(LAType=="a+"){addAnimation(LABotNum,"0");}
+	}
+	//move back to previous frame
+	positionKnob(LAFrame);
+	//STEP 4 - Remove last action from ArrayString
+	arrayString="";
+	//var TESTSTR="";
+	for(b=0;b<lastEle;b++)
+	{
+		arrayString+=getActionArray[b]+";";
+		//TESTSTR+=getActionArray[b]+";<br/>";
+	}
+	//for displaying arrayString
+	/*
+	var undoArray="<table cellspacing='2'><tr><td valign='top'>";
+	for(i=0;i<getActionArray.length;i++){
+		undoArray+=i+": "+getActionArray[i]+"<br/>";
+	}
+	undoArray+="</td><td valign='top'>";
+	undoArray+="<br/>lastAct: "+lastAction+" | lastEle: "+lastEle;
+	undoArray+="<br/>Info: "+LABotNum+" | "+LAType+" | "+lastStateFrame+" | "+getActionArray[lastStateFrame];
+	undoArray+="</td><td valign='top'>";
+	undoArray+=TESTSTR+"</td></tr></table>";
+	browseAdj("arrayText").innerHTML=undoArray;
+	*/
+}
+
+function moveToPrevState(botNum,getPrevPos)
+{
+	var prevPos=getPrevPos.split("~");
+	var objID="bot"+botNum;
+	var JQobjID="#"+objID;
+	browserSize();
+	var xPos=prevPos[0]*widthOfWindow;
+	var yPos=prevPos[1]*heightOfWindow;
+	$(function(event){
+		$(JQobjID).animate({left:xPos,top:yPos});	
+	});
+}
+
+function test()
+{
+	alert("JS works");
+}
+</script>
+</head>
+<body onload="tempInitiation()" onResize="resizeWindow()" onScroll="browserSize()">
+<span id="popUpArea"></span>
+<span id="scaleObjArea"></span>
+<span id="movieScript" style="display:block;"></span>
+<span id="MSLandmarks" style="position:relative;z-index:2;"></span>
+<span id="arrayText"></span>
+<span id="TESTArray"></span>
+
+<table style="width:100%;" border="0" cellspacing="5" cellpadding="5">
+	<tr>
+	<td colspan="2" id="logoBar" valign="top">PIXEMA</td>
+	<td colspan="1">
+		<table><tr>
+		<td class="buttonControls" onclick="botTypeMenu(event)">Bot Type</td>
+		<td id="animeButton" class="buttonControls" onclick="animationMenu(event)">Talk</td>
+		<td class="buttonControls" onclick="undoAction()">Undo</td>
+		</tr></table>
+	</td>
+	</tr>
+	
+	<!-- movie area starts -->
+	<tr>
+	<td colspan="3" id="movieEnvironment" onmousedown="decisionMaker(event)">
+	</td>
+	</tr>
+
+
+	<!-- control Panel starts -->
+	<tr>
+	<td colspan="1" id="controlAreaButtons" valign="top" class="controlPanel">
+	<table border="0" cellspacing="2" cellpadding="2" style="width:100%;">
+		<tr>
+		<td colspan="4" class="buttonControls" onclick="controlMenu(event)">Menu</td>		
+		</tr>
+		<tr>
+		<td colspan="4" class="buttonControls" onclick="controlStoryMenu(event)">Story Teller</td>		
+		</tr>
+		<tr>
+		<td class="buttonControls" id="controlBack" style="width:25%;" stepVal="-1" onclick="clearMovieTimer();nextFrame(-1)"> << </td>
+		<td colspan="2" class="buttonControls" id="playButton" style="width:50%;" stepVal=1" onclick="playMovie()">Play</td>
+		<td class="buttonControls" id="controlForward" style="width:25%;" stepVal=1" onclick="clearMovieTimer();nextFrame(1)"> >> </td>
+		</tr>
+		<tr><td colspan="4" id="controlModeToggle" class="buttonControls" onclick="setControls()" style="background-color:#5CA4F5;" onclick="setControls()">Edit</td></tr>
+		<tr><td colspan="4"><div style="width:100%;height:1px;background-color:#BBBBBB;"></div></td></tr>
+		<tr><td colspan="4" id="displayFrameNum" class="buttonControls"></td></tr>
+		<tr><td colspan="4" class="buttonControls" onclick="addTenFrames()">+10</td></tr>
+	</table>
+	</td>
+	
+	
+	<td colspan="2" id="controlAreaScroll" valign="top" class="controlPanel">
+	<table id="frameControl" border="0" cellspacing="0" cellpadding="0">
+		<tr>
+		<td>
+		<div id="frameBar">
+			<span id="frameKnob" onmousedown="dragScrollBar(event)">&nbsp;</span>
+		</div>
+		</td>
+		</tr>
+		
+		<tr>
+		<td valign="bottom" align="center">
+		<div id="ADMArea" style="width:100%;height:15px;"></div>
+		</td>
+		</tr>
+	</table>
+	</td>
+	</tr>
+</table>
+<!-- control Panel ends -->
+
+</body>
+</html>

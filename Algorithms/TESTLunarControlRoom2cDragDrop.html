@@ -1,0 +1,427 @@
+<html>
+<head>
+<title>Lunar.Control.Room.2</title>
+<link rel="stylesheet" type="text/css" href="LunarRoomCSS.css" />
+<script src="jquery.js"></script> 
+<script type="text/javascript">
+var isIE=document.all;
+//mouse movement
+var xOrig=0;
+var yOrig=0;
+//browserSize
+var widthOfWindow;	//for window dimensions - width
+var heightOfWindow;	//for window dimensions - height
+//setMovie
+var counter=0;
+var prevX=0;
+var prevY=0;
+//frameTracker
+var frameNum=0;
+//modifyArrayString
+var largestRow=0;
+var largestCol=0;
+var arrayString="";
+//addObject
+var countObj=0;
+var objElement;
+//recordIn2DArray()
+var actionArray=new Array();
+//playMovie
+var step;
+var movieTimer;
+//playMovie2
+var getMS;
+var frameDiv;
+
+function browseAdj(x)
+{
+var object;
+	 if(document.getElementById){	//Mozilla
+                  object=document.getElementById(x);
+            }else if(document.all){		//Internet Explorer
+                  object=document.all[x];
+            }else if(document.layers){		//Netscape
+                  object=document.layers[x];
+            }          
+return object;
+}
+
+function browserSize() {
+	  var myWidth = 0, myHeight = 0;
+	  if( typeof( window.innerWidth ) == 'number' ) {   //Non-IE
+	    myWidth = window.innerWidth;
+	    myHeight = window.innerHeight;
+	    myXScroll = window.pageXOffset;
+	    myYScroll = window.pageYOffset;
+	  } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+	    //IE 6+ in 'standards compliant mode'
+	    myWidth = document.documentElement.clientWidth;
+	    myHeight = document.documentElement.clientHeight;
+	    myXScroll = document.documentElement.scrollLeft;
+	    myYScroll = document.documentElement.scrollTop;
+	  } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {  //IE 4 compatible
+	    myWidth = document.body.clientWidth;
+	    myHeight = document.body.clientHeight;
+	    myXScroll = document.body.scrollLeft;
+	    myYScroll = document.body.scrollTop;
+	  }
+	  widthOfWindow=myWidth;
+	  heightOfWindow=myHeight;
+	  currentXScroll=myXScroll;
+	  currentYScroll=myYScroll;
+	  //window.alert( 'Width = ' + myWidth );
+	  //window.alert( 'Height = ' + myHeight );  
+	}
+
+
+function mouseOrig(x)
+{
+	if (browseAdj(x))
+	{
+		xOrig = window.event.x;
+		yOrig = window.event.y;		
+	}
+	else //works for Netscape & Mozilla
+	{
+		xOrig = x.pageX;
+		yOrig = x.pageY;	
+	}
+	getNodeName=isIE ? x.srcElement : x.target;
+	//prevents highlighting when dragging
+	//if nodeName is an input or textarea, then user will be able to type in it
+	//else if nodeName is another type (i.e. div), then return is false, thus preventing highlighting when dragging
+	if(getNodeName.nodeName=="INPUT" || getNodeName.nodeName=="TEXTAREA"){return true;}
+	else {return false;}
+}
+document.onmousedown=mouseOrig;
+
+function randomColorGenerator()
+{
+	var colorString;
+	var colorR=Math.floor(Math.random()*255);
+	var colorB=Math.floor(Math.random()*255);
+	var colorG=Math.floor(Math.random()*255);
+	colorString="rgb("+colorR+","+colorB+","+colorG+")";
+	return colorString;
+}
+
+function randomlyPlace()
+{
+	browserSize();
+	//randomly generate numbers within size of screen to place person
+	var randomX=Math.random()*widthOfWindow;
+	var randomY=Math.random()*heightOfWindow;
+	//position person in random location
+	browseAdj("person1").style.left=randomX;
+	browseAdj("person1").style.top=randomY;	
+}
+
+function movePerson(e)
+{
+	mouseOrig(e);
+	//find object's current position
+	var currPosX=parseInt(browseAdj("person1").style.left);
+	var currPosY=parseInt(browseAdj("person1").style.top);
+	var newX=xOrig-currPosX;
+	var newY=yOrig-currPosY;
+	var xMove="+="+newX;
+	var yMove="+="+newY;
+	$(function(event){
+		$("#person1").animate({left:xMove,top:yMove});	
+	});
+}
+
+//make decision on clicks
+function decisionMaker(e)
+{
+	var ele=isIE ? e.srcElement : e.target;
+	//if on an existing object
+	if(ele.getAttribute("objNum"))
+	{
+		moveObject(e);
+	}
+	//to stop making the movie
+	else if(ele.getAttribute("stopEdit"))
+	{
+		stopEditingMovie();
+	}
+	else if(ele.getAttribute("noEdit"))
+	{}
+	//else add new object
+	else
+	{
+		addObject(e);
+	}
+}
+
+
+
+function addObject(e)
+{
+	//get position
+	mouseOrig(e);
+	//create object with position & random color
+	var objID="obj"+countObj;
+	var randomColor=randomColorGenerator();
+	var newObj="<div id='"+objID+"' objNum="+countObj+" class='personIcon' style='position:absolute;left:"+xOrig+";top:"+yOrig+";background-color:"+randomColor+";'>&nbsp;</div>";
+	browseAdj("movieEnvironment").innerHTML+=newObj;
+	//create action string: move-xPosition,yPosition
+	var actionStr="m,"+xOrig+","+yOrig;
+	//add data to ArrayString
+	modifyArrayString(countObj,frameNum,actionStr);
+	//increment countObj
+	countObj++;
+}
+
+function moveObject(e)
+{
+	
+}
+
+//MOVIE FUNCTIONS
+function initiateSetMovie()
+{
+	document.body.setAttribute("onclick","decisionMaker(event)");
+	frameTracker(0);
+}
+
+function frameTracker(step)
+{
+	//record frame # currently being viewed
+	if(step==1){frameNum=frameNum-1;}
+	else if(step==2){frameNum=frameNum+1;}
+	if(frameNum<0){frameNum=0;}
+	browseAdj("displayFrameNum").innerHTML="&nbsp;"+frameNum+"&nbsp;";
+	//add new row to 2DArray
+	modify2DArray(1);
+}
+
+function modifyArrayString(objNum,frameNum,actionStr)
+{
+	//row=frame, & column=objNum
+	if(frameNum>=largestRow){largestRow=frameNum+1;}
+	if(objNum>=largestCol){largestCol=objNum+1;}
+	//save as string
+	arrayString+=frameNum+":"+objNum+":"+actionStr+";";
+	//browseAdj("arrayText").innerHTML=arrayString;
+}
+
+function convertToArray()
+{
+	var copyOfArrayStr,frameDiv,getEleStr,getRow,getCol,getVal;
+	//create array with appropriate size - largestRow & largestCol
+	var actionArray=new Array(largestRow);
+	for(i=0;i<largestRow;i++)
+	{
+		actionArray[i]=new Array(largestCol);
+	}
+	//initiate array
+	for(a=0;a<largestRow;a++)
+	{
+		for(b=0;b<largestCol;b++)
+		{
+			actionArray[a][b]=null;
+		}
+	}
+	
+	//add values to array
+	copyOfArrayStr=arrayString;
+	frameDiv=copyOfArrayStr.indexOf(";");
+	while(frameDiv && (copyOfArrayStr.length>1))
+	{
+		getEleStr=copyOfArrayStr.substr(0,frameDiv);
+		copyOfArrayStr=copyOfArrayStr.substr(frameDiv+1);
+		frameDiv=copyOfArrayStr.indexOf(";");
+		colonArray=getEleStr.split(":");
+		//get row
+		getRow=colonArray[0];
+		//get column
+		getCol=colonArray[1];
+		//get value
+		getVal=colonArray[2];
+		//alert("cTA3: "+getRow+" | "+getCol+" | "+getVal);
+		//add value to array
+		actionArray[getRow][getCol]=getVal;
+	}
+	/*
+	//display array
+	var displayArray="<table>";
+	for(x=0;x<largestRow;x++)
+	{
+		displayArray+="<tr><td>"+x+"</td>";
+		for(y=0;y<largestCol;y++)
+		{
+			//alert("loop1: "+x+" | "+y);
+			displayArray+="<td>"+actionArray[x][y]+"</td>";
+		}
+		displayArray+="</tr>";
+	}
+	displayArray+="</table>";
+	browseAdj("TESTArray").innerHTML=displayArray;
+	*/
+}
+
+//after changes made to a specific frame, events are recorded in this 2D array
+//row = frame #, column = object #
+function modify2DArray(act)
+{
+	//get the action & object
+	if(act==1)
+	{
+		
+	}
+}
+
+function setMovie(e)
+{
+	var button=isIE ? e.srcElement : e.target;
+	//alert(button+" | "+button.getAttribute("stopEdit"));
+	if(button.getAttribute("stopEdit")!="1")
+	{
+	var counterBlock;
+	//get click position
+	mouseOrig(e);
+	//subtract from previous click position
+	var nextX=xOrig-prevX;
+	var nextY=yOrig-prevY;
+	prevX=xOrig;
+	prevY=yOrig;
+	//save as string
+	browseAdj("movieScript").innerHTML+=nextX+","+nextY+";";
+	//place counterBlock
+	counterBlock="<div style='position:absolute;left:"+xOrig+";top:"+yOrig+";'>"+counter+"</div>";
+	browseAdj("MSLandmarks").innerHTML+=counterBlock;
+	counter++;
+	}
+	else
+	{
+		stopEditingMovie();
+	}
+}
+
+function stopEditingMovie()
+{
+	//document.body.removeAttribute("onclick");
+	document.body.setAttribute("onclick","");
+}
+
+function playMovie2()
+{
+	//get movie script
+	getMS=browseAdj("movieScript").innerHTML;
+	//play each frame - set time out & action
+	frameDiv=getMS.indexOf(";");
+	movieTimer=setInterval("playFrame2()",500);
+}
+
+function playFrame2()
+{
+	if(frameDiv && (getMS.length>1))
+	{
+		step=getMS.substr(0,frameDiv);
+		//modify string
+		getMS=getMS.substr(frameDiv+1);
+		frameDiv=getMS.indexOf(";");
+		//set time out
+		var commaIndex=step.indexOf(",");
+		var newX=step.substr(0,commaIndex);
+		var newY=step.substr(commaIndex+1);
+		//alert("pF1: "+newX+" | "+newY);
+		var xMove="+="+newX;
+		var yMove="+="+newY;
+		$(function(event){
+			$("#person1").animate({left:xMove,top:yMove});	
+		});
+	}
+	else
+	{
+		clearInterval(movieTimer);
+	}
+}
+
+
+//drag objects
+var objElement;
+var isdown;
+function dragObject(e)
+{
+	isdown=true;
+	objElement=isIE ? e.srcElement : e.target;
+	//onmousemove
+	offsetx=isIE ? event.clientX : e.clientX;
+    offsety=isIE ? event.clientY : e.clientY;
+	document.onmousemove=moveObject;
+	//onmouseup
+	document.onmouseup=function()
+    {
+    	isdown=false;
+    }
+}
+
+function moveObject(e){
+	  if (!isdown) return;
+	  //objElement.style.left=isIE ? event.clientX-offsetx : e.clientX-offsetx; 
+	  //objElement.style.top=isIE ? event.clientY-offsety : e.clientY-offsety;
+	  objElement.style.left=isIE ? event.clientX : e.clientX; 
+	  objElement.style.top=isIE ? event.clientY : e.clientY;
+	  return false;  
+}
+/*
+function playMovie()
+{
+	var frameDiv;
+	//get movie script
+	var getMS=browseAdj("movieScript").innerHTML;
+	//play each frame - set time out & action
+	frameDiv=getMS.indexOf(";");
+	while(frameDiv && (getMS.length>1))
+	{
+		//get the part of the script
+		step=getMS.substr(0,frameDiv);
+		//modify string
+		getMS=getMS.substr(frameDiv+1);
+		frameDiv=getMS.indexOf(";");
+		//set time out
+		playFrame();
+		//movieTimer=setTimeout("playFrame()",500);
+		alert(getMS+" | "+frameDiv+" ||: "+step);
+	}
+}
+
+function playFrame()
+{
+	alert("pF0:");
+	//break into x & y strings
+	var commaIndex=step.indexOf(",");
+	var newX=step.substr(0,commaIndex);
+	var newY=step.substr(commaIndex+1);
+	alert("pF1: "+newX+" | "+newY);
+	var xMove="+="+newX;
+	var yMove="+="+newY;
+	$(function(event){
+		$("#person1").animate({left:xMove,top:yMove});	
+	});
+	clearTimeout(movieTimer);
+}
+*/
+</script>
+</head>
+<body>
+<span id="popUpArea"></span>
+<span id="movieScript" style="display:block;"></span>
+<span id="MSLandmarks" style="position:relative;z-index:2;"></span>
+<span id="movieEnvironment"></span>
+<br/><br/>
+<span id="arrayText"></span><br/>
+<span id="TESTArray"></span>
+
+<button onclick="initiateSetMovie()" noEdit="y" style="position:relative;z-index:5;">Film Movie</button>&nbsp;&nbsp;&nbsp;
+<button stopEdit="1" noEdit="y" style="position:relative;z-index:5;">Finish Movie</button>&nbsp;&nbsp;&nbsp;
+<button onclick="playMovie2()" style="position:relative;z-index:5;">Play</button>&nbsp;&nbsp;&nbsp;
+<button onclick="convertToArray()" style="position:relative;z-index:5;">convert to array</button>&nbsp;&nbsp;&nbsp;
+<span id="frameControl"><button onclick="frameTracker(1)" noEdit="y"><</button><span id="displayFrameNum"></span><button onclick="frameTracker(2)" noEdit="y">></button></span>
+
+<div id="person1" class="personIcon" onmousedown="dragObject(event)" style="position:absolute;left:300;top:200;background-color:#A5445E;">&nbsp;</div>
+
+</body>
+</html>

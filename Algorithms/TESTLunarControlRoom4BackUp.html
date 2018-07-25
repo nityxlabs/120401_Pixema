@@ -1,0 +1,1192 @@
+<html>
+<head>
+<title>Lunar.Control.Room.4</title>
+<link rel="stylesheet" type="text/css" href="LunarRoomCSS3.css" />
+<script src="jquery.js"></script> 
+<script type="text/javascript">
+var isIE=document.all;
+//mouse movement
+var xOrig=0;
+var yOrig=0;
+//browserSize
+var widthOfWindow;	//for window dimensions - width
+var heightOfWindow;	//for window dimensions - height
+//setMovie
+var counter=0;
+var prevX=0;
+var prevY=0;
+//frameTracker & goToFrame
+var frameNum=0;
+//modifyArrayString
+var largestRow=1;
+var largestCol=1;
+var arrayString="";
+//track ADM array
+var ADMstr="";
+//addObject
+var countObj=0;
+var objElement;
+//drag objects
+var objElement;
+var isdown;
+//recordIn2DArray()
+var actionArray;
+//ADM Variables
+var ADMarray=new Array();
+//record ADM array
+var ADMArray;
+var ADMover=false;
+var ADMSelectStat=false;	//ADM selector
+//setControls
+var controlMode=1;		//see type: 1 - edit, 2- play
+//FRAME CONTROL 
+var totalFrame=10;
+var barLength=1;
+var FPratio=totalFrame/barLength; 	//frame to pixel ratio
+var frameScroll=false;
+var frameNum=0;
+var frameBarOffSetX;
+//playMovie
+var playCount=0;
+var movieTimer;
+
+function browseAdj(x)
+{
+var object;
+	 if(document.getElementById){	//Mozilla
+                  object=document.getElementById(x);
+            }else if(document.all){		//Internet Explorer
+                  object=document.all[x];
+            }else if(document.layers){		//Netscape
+                  object=document.layers[x];
+            }          
+return object;
+}
+
+function browserSize() {
+	  var myWidth = 0, myHeight = 0;
+	  if( typeof( window.innerWidth ) == 'number' ) {   //Non-IE
+	    myWidth = window.innerWidth;
+	    myHeight = window.innerHeight;
+	    myXScroll = window.pageXOffset;
+	    myYScroll = window.pageYOffset;
+	  } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+	    //IE 6+ in 'standards compliant mode'
+	    myWidth = document.documentElement.clientWidth;
+	    myHeight = document.documentElement.clientHeight;
+	    myXScroll = document.documentElement.scrollLeft;
+	    myYScroll = document.documentElement.scrollTop;
+	  } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {  //IE 4 compatible
+	    myWidth = document.body.clientWidth;
+	    myHeight = document.body.clientHeight;
+	    myXScroll = document.body.scrollLeft;
+	    myYScroll = document.body.scrollTop;
+	  }
+	  widthOfWindow=myWidth;
+	  heightOfWindow=myHeight;
+	  currentXScroll=myXScroll;
+	  currentYScroll=myYScroll;
+	  //window.alert( 'Width = ' + myWidth );
+	  //window.alert( 'Height = ' + myHeight );  
+}
+
+
+function mouseOrig(x)
+{
+	if(browseAdj(x))
+	{
+		xOrig = window.event.x;
+		yOrig = window.event.y;		
+	}
+	else //works for Netscape & Mozilla
+	{
+		xOrig = x.pageX;
+		yOrig = x.pageY;	
+	}
+	getNodeName=isIE ? x.srcElement : x.target;
+	//prevents highlighting when dragging
+	//if nodeName is an input or textarea, then user will be able to type in it
+	//else if nodeName is another type (i.e. div), then return is false, thus preventing highlighting when dragging
+	if(getNodeName.nodeName=="INPUT" || getNodeName.nodeName=="TEXTAREA"){return true;}
+	else {return false;}
+}
+document.onmousedown=mouseOrig;
+
+function retrieveNodeArray(NameOfNode,NodeTrait,SpecificTrait)
+{
+	//NameOfNode - access the name attribute of the node
+	//NodeTrait - the attribute of interest for the node (getAttribute)
+	//SpecificTrait - the value the NodeTrait should match
+	//create array
+	var i;
+	var k=0;
+	var ArrayOfNodes=new Array();
+	var e=new Array();
+	var e=document.getElementsByName(NameOfNode);
+	//for(i in e)
+	for(i=0;i<e.length;i++)
+	{
+		if(e[i].getAttribute(NodeTrait)==SpecificTrait)
+		{
+			ArrayOfNodes[k]=e[i];
+			k++;			
+		}
+	}
+	return ArrayOfNodes;
+}
+
+function closePopUps()
+{
+	browseAdj("popUpArea").innerHTML="";
+}
+
+function resetMouseEvents()
+{
+	document.onmouseover=function(){};
+	document.onmousemove=function(){};
+	document.onmouseout=function(){};
+	document.onmousedown=mouseOrig;
+}
+
+function clearJSEvents()
+{
+	document.onmouseup=function(){}
+	document.onmousemove=function(){}
+	document.onclick=function(){}
+	document.onmousedown=mouseOrig;
+}
+
+function randomColorGenerator()
+{
+	var colorString;
+	var colorR=Math.floor(Math.random()*255);
+	var colorB=Math.floor(Math.random()*255);
+	var colorG=Math.floor(Math.random()*255);
+	colorString="rgb("+colorR+","+colorB+","+colorG+")";
+	return colorString;
+}
+
+function randomlyPlace()
+{
+	browserSize();
+	//randomly generate numbers within size of screen to place person
+	var randomX=Math.random()*widthOfWindow;
+	var randomY=Math.random()*heightOfWindow;
+	//position person in random location
+	browseAdj("person1").style.left=randomX;
+	browseAdj("person1").style.top=randomY;	
+}
+
+//DATA MANAGEMENT
+//create object
+function Bot(position,talk)
+{
+	this.position=position;
+	this.talk=talk;
+	//other ideas: frame caption, bot mood
+}
+
+/*
+function frameTracker(step)
+{	
+	frameNum=frameNum+step;
+	//check the boundaries of the frameNum
+	if(frameNum<0){frameNum=0;}
+	if(frameNum>=totalFrame){frameNum=totalFrame;}
+	browseAdj("displayFrameNum").innerHTML="&nbsp;"+frameNum+"&nbsp;";
+	positionKnob(frameNum);
+}
+*/
+
+//after changes made to a specific frame, events are recorded in a string
+//row = frame #, column = object #
+function modifyArrayString(objNum,frameNum,actionStr)
+{
+	//row=frame, & column=objNum
+	if(frameNum>=largestRow){largestRow=frameNum+1;}
+	if(objNum>=largestCol){largestCol=objNum+1;}
+	//save as string - frameNum:objNum:actionString
+	//actionString=action type, actual action, change state
+	arrayString+=frameNum+":"+objNum+":"+actionStr+";";
+	//browseAdj("arrayText").innerHTML=arrayString;
+}
+
+function addAction(e)
+{
+	actElement=isIE ? e.srcElement : e.target;
+	var actionType=actElement.getAttribute("actionType");
+	var countObj=actElement.getAttribute("objNum");
+	var objID=actElement.getAttribute("id");
+	var actionStr;
+	//get the type of action & create action string
+	if(actionType==1)		//1 is for talking
+	{
+		//create & save action string
+		actionStr="t+,"+browseAdj("dialogBox").value;
+		//create talk bubble
+		showTalkBubble(countObj,browseAdj("dialogBox").value);
+	}
+	else if(actionType==2)		//2 is for removing talking bubble
+	{}	
+	//send to array string
+	closePopUps();
+	modifyArrayString(countObj,frameNum,actionStr);
+}
+
+function getDataStr(e)
+{
+	mouseOrig(e);
+	convertToArray();
+	var packageStr=arrayString+"|"+totalFrame+":"+largestCol;
+	var yOrig2=yOrig-40;
+	var dataStrBox="<table id='controlMenuBox' style='position:absolute;left:"+xOrig+";top:"+yOrig2+";z-index:10;background-color:#333333;'>";
+	dataStrBox+="<tr><td>Data String</td><td class='closeX' onclick='closePopUps()'>X</td></tr>";
+	dataStrBox+="<tr><td><textarea class='textField'>"+packageStr+"</textarea></td></tr></table>";
+	browseAdj("popUpArea").innerHTML=dataStrBox;
+}
+
+function setDataStr()
+{
+	var objID,botID,talkID,randomColor;
+	var newObj,newObjPos;
+	//unpackage string
+	var unpackStr=browseAdj("actionScript").value;
+	unpackStr=unpackStr.split("|");
+	//set array string
+	arrayString=unpackStr[0];
+	//set totalFrame & bot #
+	cTAStr=unpackStr[1].split(":");
+	totalFrame=cTAStr[0];
+	largestCol=cTAStr[1];
+	//need to find totalFrame & largestCol - need these in order to run convertToArray
+	//clear movie environment first
+	browseAdj("movieEnvironment").innerHTML="";
+	//create bots for movie script
+	convertToArray();
+	countObj=actionArray[0].length;		//countObj is a global variable
+	for(i=0;i<countObj;i++)
+	{
+		//set bot attributes
+		objID="obj"+i;
+		botID="bot"+i;
+		talkID="talk"+i;
+		randomColor=randomColorGenerator();
+		//position bot
+		newObjPos=actionArray[0][i].position.split("~");
+		//create bot
+		newObj="<table id='"+botID+"' objNum="+i+" onmousedown='dragObject(event)' style='position:absolute;left:"+newObjPos[0]+";top:"+newObjPos[1]+";z-index:5;'><tr>";
+		newObj+="<td id='"+objID+"' objNum="+i+" class='personIcon' onmousedown='dragObject(event)' style='background-color:"+randomColor+";'>&nbsp;</td>";
+		newObj+="<td><div id='"+talkID+"' class='talkBox' objNum="+i+" style='position:relative;left:-15px;top:-5px;z-index:6;opacity:0;'></div></td>";
+		newObj+="</tr></table>";
+		browseAdj("movieEnvironment").innerHTML+=newObj;
+	}
+}
+
+function convertToArray()
+{
+	var copyOfArrayStr,frameDiv,getEleStr,getRow,getCol,getVal,getRandPos;
+	//create array with appropriate size - totalFrame & largestCol
+	actionArray=new Array(totalFrame);
+	for(i=0;i<totalFrame;i++)
+	{
+		actionArray[i]=new Array(largestCol);
+	}
+	//initiate array
+	for(a=0;a<totalFrame;a++)
+	{
+		for(b=0;b<largestCol;b++)
+		{
+			actionArray[a][b]=new Bot("","");
+		}
+	}
+	
+	//add values to array
+	copyOfArrayStr=arrayString;
+	frameDiv=copyOfArrayStr.indexOf(";");
+	while(frameDiv && (copyOfArrayStr.length>1))
+	{
+		getEleStr=copyOfArrayStr.substr(0,frameDiv);
+		copyOfArrayStr=copyOfArrayStr.substr(frameDiv+1);
+		frameDiv=copyOfArrayStr.indexOf(";");
+		colonArray=getEleStr.split(":");
+		//get row
+		getRow=colonArray[0];
+		//get column
+		getCol=colonArray[1];
+		//get value
+		getVal=colonArray[2];
+		//splice getVal
+		valueArray=getVal.split(",");
+		if(valueArray[0]=="m+"){
+			actionArray[getRow][getCol].position=valueArray[1];
+		}
+		else if(valueArray[0]=="t+"){
+			actionArray[getRow][getCol].talk=valueArray[1];
+		}
+	}
+
+	//clean up data string - remove redundant parts of the string
+	//row = frame #, column = object #
+	var cleanActionStr="";
+	for(c2=0;c2<actionArray.length;c2++)
+	{
+		for(d2=0;d2<actionArray[c2].length;d2++)
+		{
+			//get the position. The position is denoted by "m+"
+			if(actionArray[c2][d2].position!=""){cleanActionStr+=c2+":"+d2+":"+"m+,"+actionArray[c2][d2].position+";";}
+			//get the dialogue. The dialogue (talk) is denoted by "t+"
+			if(actionArray[c2][d2].talk!=""){cleanActionStr+=c2+":"+d2+":"+"t+,"+actionArray[c2][d2].talk+";";}
+		}
+	}
+	//replace old arrayString with new, "cleaned" array
+	//browseAdj("TESTArray").innerHTML="OLD - "+arrayString+"<br/>NEW - "+cleanActionStr;
+	arrayString=cleanActionStr;
+
+	//call ADM function for each bot
+	for(d=0;d<actionArray[0].length;d++)
+	{
+		ADM(d);
+	}
+	//NEED TO GO THROUGH ARRAY, FILLING IN THE "GAPS"
+	//replacePosArray - an array that will save the current state of the bot, thus filling gaps for subsequent elements.
+	//Need to create a new element for each bot
+	getRandPos=randOutScreenPos();
+	var replaceNullVal=new Bot(getRandPos,"[VOIDNULL]");
+	var replacePosArray=new Array();
+	for(b=0;b<actionArray[0].length;b++)
+	{
+		getRandPos=randOutScreenPos();
+		replacePosArray[b]=new Bot(getRandPos,"[VOIDNULL]");
+		//replacePosArray[b]=replaceNullVal;
+	}
+	//go through each row & column
+	for(c=0;c<actionArray.length;c++)
+	{
+		for(d=0;d<actionArray[c].length;d++)
+		{
+			//go through each property
+			//move
+			if(actionArray[c][d].position==""){actionArray[c][d].position=replacePosArray[d].position;}			//if no position is specified, then just fill with current value in replacePosArray
+			else{replacePosArray[d].position=actionArray[c][d].position;}		//else save new state for specific bot.
+			//talk
+			if(actionArray[c][d].talk==""){actionArray[c][d].talk=replacePosArray[d].talk;}
+			else{replacePosArray[d].talk=actionArray[c][d].talk;}
+		}
+	}
+
+	/*
+	//display array
+	var displayArray="<table border='1'>";
+	var objText="";
+	for(x=0;x<totalFrame;x++)
+	{
+		displayArray+="<tr><td>"+x+"</td>";
+		for(y=0;y<largestCol;y++)
+		{
+			//alert("loop1: "+x+" | "+y);
+			objText="Pos: "+actionArray[x][y].position+" | Talk: "+actionArray[x][y].talk;
+			displayArray+="<td>"+objText+"</td>";
+		}
+		displayArray+="</tr>";
+	}
+	displayArray+="</table>";
+	browseAdj("TESTArray").innerHTML=displayArray;
+	*/
+}
+
+//DECISIONS FUNCTIONS
+//make decision on clicks
+function decisionMaker(e)
+{
+	var ele=isIE ? e.srcElement : e.target;
+	//if on an existing object
+	if(ele.getAttribute("id")=="movieEnvironment"){addObject(e);}
+}
+
+function popUpActionBox(e)
+{
+	objElement=isIE ? e.srcElement : e.target;
+	mouseOrig(e);
+	//make popup box
+	var pUAB="<table id='actionBox' class='actionBox' objNum='"+objElement.getAttribute("objNum")+"' style='position:absolute;left:"+xOrig+";top:"+yOrig+";z-index:10;opacity:0;'>";
+	pUAB+="<tr><td>Add Dialog</td><td class='closeX' onclick='closePopUps()'>X</td></tr>";
+	pUAB+="<tr><td><input id='dialogBox' class='textField' type='text'/></td></tr>";
+	pUAB+="<tr><td class='buttonGray' style='background-color:#5CA4F5;' objNum='"+objElement.getAttribute("objNum")+"' actionType='1' onclick='addAction(event)'>Submit</td></tr></table>";
+	//display box in popUp area
+	browseAdj("popUpArea").innerHTML=pUAB;
+	$(function(event){
+		$("#actionBox").animate({opacity:1,top:'-=25'});	
+	});
+}
+
+//ACTIONS & DATA IMPLEMENTATION
+//add objects
+function addObject(e)
+{
+	//Save data
+	//create action string: move-xPosition,yPosition
+	var actionStr="m+,"+xOrig+"~"+yOrig;
+	//add data to ArrayString
+	modifyArrayString(countObj,frameNum,actionStr);
+	//show objects
+	//get position
+	mouseOrig(e);
+	//create object with position & random color
+	var objID="obj"+countObj;
+	//var encloseID="enc"+countObj;
+	var botID="bot"+countObj;
+	var talkID="talk"+countObj;
+	var randomColor=randomColorGenerator();
+	var newObj="<table id='"+botID+"' objNum="+countObj+" onmousedown='dragObject(event)' style='position:absolute;left:"+xOrig+";top:"+yOrig+";z-index:5;'><tr>";
+	newObj+="<td id='"+objID+"' objNum="+countObj+" class='personIcon' onmousedown='dragObject(event)' style='background-color:"+randomColor+";'>&nbsp;</td>";
+	newObj+="<td><div id='"+talkID+"' class='talkBox' objNum="+countObj+" style='position:relative;left:-15px;top:-5px;z-index:6;opacity:0;'></div></td>";
+	newObj+="</tr></table>";
+	browseAdj("movieEnvironment").innerHTML+=newObj;
+	//increment countObj
+	countObj++;
+}
+
+//move object
+function dragObject(e)
+{
+	isdown=true;
+	objInfo=isIE ? e.srcElement : e.target;
+	var countObj=objInfo.getAttribute("objNum");
+	var encID="bot"+countObj;
+	objElement=browseAdj(encID);
+	//record original position
+	var iX=parseInt(objElement.style.left);
+    var iY=parseInt(objElement.style.top);
+	//onmousemove
+	document.onmousemove=moveObject;
+	//onmouseup
+	document.onmouseup=function()
+    {
+		isdown=false;
+		clearJSEvents();
+		//save changes to move
+		var xPos=parseInt(objElement.style.left);
+		var yPos=parseInt(objElement.style.top);
+		//if object didn't move that much, then show pop up menu
+		var changeX=Math.abs(xPos-iX);
+		var changeY=Math.abs(yPos-iY);
+		if(changeX<=3 && changeY<=3){
+			popUpActionBox(e);
+		}
+		else{
+			var actionStr="m+,"+xPos+"~"+yPos;
+			//add data to ArrayString
+			modifyArrayString(countObj,frameNum,actionStr);
+		}
+  	}
+}
+
+function moveObject(e){
+	  if (!isdown) return;
+	  //objElement.style.left=isIE ? event.clientX-offsetx : e.clientX-offsetx; 
+	  //objElement.style.top=isIE ? event.clientY-offsety : e.clientY-offsety;
+	  objElement.style.left=isIE ? event.clientX : e.clientX; 
+	  objElement.style.top=isIE ? event.clientY : e.clientY;
+	  return false;  
+}
+
+function showTalkBubble(objNum,dialog)
+{
+	var talkID="talk"+objNum;
+	var JQtalkID="#"+talkID;
+	//scenarios: 1-newly appeared, 2-change appeared box, 3-make talkBubble disappear
+	if(browseAdj(talkID).style.opacity!=0)	//if talkBubble is currently visible
+	{
+		if(dialog!="[VOIDNULL]")
+		{
+			$(function(event){
+				//$(JQtalkID).animate({opacity:0,top:'+=25'});
+				$(JQtalkID).animate({opacity:0,top:'+=25'}, function(){browseAdj(talkID).innerHTML=dialog;}).animate({opacity:1,top:'-=25'});
+				//$("#uploadPictureBox").animate({opacity:1,left:'-=10',top:'-=30'}, function(){browseAdj("popUpArea").innerHTML=uploadPicBox;});			
+			});
+		}
+		else
+		{
+			$(function(event){
+				$(JQtalkID).animate({opacity:0,top:'+=25'}, function(){browseAdj(talkID).innerHTML="";});
+			});
+		}
+	}
+	else		//else if talkBubble isn't visible
+	{
+		//add new dialogue box
+		if(dialog!="[VOIDNULL]")
+		{
+			browseAdj(talkID).innerHTML=dialog;
+			$(function(event){
+				$(JQtalkID).animate({opacity:1,top:'-=25'});	
+			});
+		}
+	}
+}
+
+//FRAME CONTROL FUNCTIONS
+//finds absolute position of object by summating position of all parent nodes
+function findAbsPosition(obj)
+{
+	var posLeft=0;
+	var posTop=0;
+	while(obj && (obj.nodeType!=9))
+	{
+		posLeft+=obj.offsetLeft;
+		posTop+=obj.offsetTop;
+		obj=obj.parentNode;
+	}
+	return [posLeft, posTop];
+}
+
+//move scrollbox
+function dragScrollBar(e)
+{		
+	var getFBOSX=findAbsPosition(browseAdj("frameControl"));  //get frame bar offset x
+	frameBarOffSetX=getFBOSX[0];
+	FPratio=totalFrame/barLength;
+	//alert("dSB: "+frameBarOffSetX+" | "+FPratio);
+	//get object
+	frameScroll=true;
+	dragBar=isIE ? e.srcElement : e.target;
+	//get its current position - frame # or position?
+	//onmousemove - drag object
+	document.onmousemove=moveBar;
+	//onmouseup 
+	document.onmouseup=function()
+    {
+		//scrolling frame is false
+		frameScroll=false;
+		//record new frame position
+		frameNum=Math.round(parseInt(dragBar.style.left)*(FPratio));
+		positionKnob(frameNum);
+		/*
+		browseAdj("frameKnob").innerHTML="<span style='color:#222222;'>"+frameNum+"</span>";
+		//set bar to position
+		dragBar.style.left=(frameNum/totalFrame)*barLength;
+		*/
+  	}
+}
+
+function moveBar(e){
+	if (!frameScroll) return;
+	//objElement.style.left=isIE ? event.clientX-offsetx : e.clientX-offsetx; 
+	//objElement.style.top=isIE ? event.clientY-offsety : e.clientY-offsety;
+	dragBar.style.left=isIE ? event.clientX-frameBarOffSetX : e.clientX-frameBarOffSetX;
+	var checkBarPos=parseInt(dragBar.style.left);
+	browseAdj("frameKnob").innerHTML="<span style='font:16px Rockwell, 'Courier New', Courier, Georgia, serif;color:#982135;'>"+Math.round(checkBarPos*(FPratio))+"</span>";
+	if(checkBarPos<=0){dragBar.style.left=0;}
+	else if(checkBarPos>=barLength){dragBar.style.left=barLength;}
+	return false;  
+}
+
+function goToFrame(e)
+{
+	frameInfo=isIE ? e.srcElement : e.target;
+	frameNum=parseInt(frameInfo.getAttribute("frameNum"));
+	browseAdj("displayFrameNum").innerHTML="&nbsp;"+frameNum+"&nbsp;";
+	trackADM(e);
+	positionKnob(frameNum);
+}
+
+function positionKnob(frameNum)
+{
+	//position knob for scroll frame bar
+	browseAdj("frameKnob").innerHTML="<span style='font:16px Rockwell, 'Courier New', Courier, Georgia, serif;color:#982135;'>"+frameNum+"</span>";
+	//set bar to position
+	//browseAdj("frameKnob").style.left=(frameNum/totalFrame)*barLength;
+	var frameScrollX=(frameNum/totalFrame)*barLength;
+	$(function(event){
+		$("#frameKnob").animate({left:frameScrollX});	
+	});
+}
+
+function addTenFrames()
+{
+	totalFrame=totalFrame+10;
+	FPratio=totalFrame/barLength;
+	browseAdj("displayFrameNum").innerHTML=totalFrame;
+	//add ten to ADMArray
+	augmentADMBar();
+}
+
+//FULLSCREEN FRAME CONTROL FUNCTIONS
+function centerControlArea()
+{
+	var posX,posY;
+	browserSize();
+	//height of bar
+	var panelHeight=100;
+	//get values to center panel
+	posX=0;
+	posY=heightOfWindow-panelHeight;
+	//center panel in bottom center
+	browseAdj("controlPanel").style.left=posX;
+	browseAdj("controlPanel").style.top=posY;
+	browseAdj("controlPanel").style.width=widthOfWindow;
+	//frameScrollBars
+	browseAdj("controlPanel").style.width=widthOfWindow;
+}
+
+
+//FRAME CONTROL FUNCTIONS
+function centerControlArea2()
+{
+	var posX,posY;
+	var panelHalfWidth=300;
+	var panelDistFromBot=130;
+	//get browser dimensions
+	browserSize();
+	//get values to center panel
+	posX=parseInt(widthOfWindow/2)-panelHalfWidth;
+	posY=parseInt(heightOfWindow)-panelDistFromBot;
+	//center panel in bottom center
+	browseAdj("controlPanel").style.left=posX;
+	browseAdj("controlPanel").style.top=posY;
+}
+
+function setControls()
+{
+	//see type: 1 - edit, 2- play
+	//set controls
+	if(controlMode==1)
+	{
+		browseAdj("playButton").setAttribute("onclick","playMovie()");
+		browseAdj("controlModeToggle").innerHTML="Preview";
+		browseAdj("controlModeToggle").style.backgroundColor="#D06692";
+		controlMode=2;
+		convertToArray();
+	}
+	else
+	{
+		browseAdj("playButton").setAttribute("onclick","");
+		browseAdj("controlModeToggle").innerHTML="Edit";
+		browseAdj("controlModeToggle").style.backgroundColor="#5CA4F5";
+		controlMode=1;
+	}
+}
+
+
+//MOVIE FUNCTIONS
+function initiateSetMovie()
+{
+	//document.body.setAttribute("onclick","decisionMaker(event)");
+	nextFrame(0);
+}
+
+function setMovie(e)
+{
+	var button=isIE ? e.srcElement : e.target;
+	//alert(button+" | "+button.getAttribute("stopEdit"));
+	if(button.getAttribute("stopEdit")!="1")
+	{
+	var counterBlock;
+	//get click position
+	mouseOrig(e);
+	//subtract from previous click position
+	var nextX=xOrig-prevX;
+	var nextY=yOrig-prevY;
+	prevX=xOrig;
+	prevY=yOrig;
+	//save as string
+	browseAdj("movieScript").innerHTML+=nextX+","+nextY+";";
+	//place counterBlock
+	counterBlock="<div style='position:absolute;left:"+xOrig+";top:"+yOrig+";'>"+counter+"</div>";
+	browseAdj("MSLandmarks").innerHTML+=counterBlock;
+	counter++;
+	}
+	else
+	{
+		stopEditingMovie();
+	}
+}
+
+function stopEditingMovie()
+{
+	var objID,JQobjID,xPos,yPos,xMove,yMove;
+	//document.body.removeAttribute("onclick");
+	document.body.setAttribute("onclick","");
+	//clear movieEnvironment
+	for(a=0;a<largestCol;a++)
+	{
+		objID="obj"+a;
+		xPos=parseInt(browseAdj(objID).style.left);
+		xMove=-100-xPos;
+		yPos=parseInt(browseAdj(objID).style.top);
+		yMove=-100-yPos;
+		JQobjID="#"+objID;
+		$(function(event){
+			$(objID).animate({left:xMove,top:yMove});	
+		});
+	}
+}
+
+function playMovie()
+{
+	//set frameNum to last frame
+	frameNum=totalFrame-1;
+	movieTimer=setInterval("checkPlay(1)",1000);
+}
+
+function startMovFromBeg()
+{
+	//get current frame
+}
+
+function checkPlay(direction)
+{
+	if(playCount<=totalFrame-1)
+	{
+		nextFrame(direction);
+		playCount++;
+	}
+	else
+	{
+		clearInterval(movieTimer);
+		playCount=0;
+	}
+}
+
+function nextFrame(step)
+{
+	var frame1,frame2;
+	if(step==0){frameNum=frameNum;
+	frame1=frameNum;
+	frame2=frameNum;}
+	else if(step==-1)
+	{
+		if(frameNum<=0){frame1=0;
+		frame2=totalFrame-1;
+		frameNum=totalFrame-1}
+		else{frame1=frameNum;
+		frame2=frameNum+step;
+		frameNum=frameNum+step;}
+	}
+	else if(step==1)
+	{
+		if(frameNum>=totalFrame-1){frame1=totalFrame-1;
+		frame2=0;
+		frameNum=0;}
+		else{frame1=frameNum;
+		frame2=frameNum+step;
+		frameNum=frameNum+step;}
+	}
+
+	if(controlMode==2){playByFrame(frame1,frame2);}
+	else
+	{
+		browseAdj("displayFrameNum").innerHTML="&nbsp;"+frame2+" of "+totalFrame;
+		positionKnob(frame2);
+	}
+}
+
+function playByFrame(frame1,frame2)
+{
+	var pF=1;		//proceed forward
+	var objID,JQobjID,elementStr,colonArray;
+	var array1,array2;
+	//convertToArray();
+	browseAdj("displayFrameNum").innerHTML="&nbsp;"+frame2+" of "+totalFrame;
+	//access array with actions (row=frame, col=obj)
+	for(y=0;y<actionArray[frame2].length;y++)
+	{
+		objID="bot"+y;
+		JQobjID="#"+objID;
+		//check position
+		if(actionArray[frame2][y].position!=actionArray[frame1][y].position)
+		{
+			array2=actionArray[frame2][y].position.split("~");
+			var xPos=parseInt(array2[0]);
+			var yPos=parseInt(array2[1]);
+			$(function(event){
+				$(JQobjID).animate({left:xPos,top:yPos});	
+			});
+		}
+		//check talk
+		if(actionArray[frame2][y].talk!=actionArray[frame1][y].talk)
+		{
+			showTalkBubble(y,actionArray[frame2][y].talk);		
+		}
+	}
+	positionKnob(frame2);
+}
+
+//ADM FUNCTIONS
+function augmentADMBar()
+{
+	var cellWidth,ADMBar,startI;
+	var allADMFrames=new Array();
+	//find # of frames to find width of each cell
+	//var ADMLength=parseInt(browseAdj("ADMArea").style.width);
+	cellWidth=barLength/totalFrame;
+	//get existing innerHTML info
+	ADMBar=browseAdj("ADMArea").innerHTML;
+	startI=totalFrame-10;
+	//add ten columns to the ADMBar
+	for(i=startI;i<totalFrame;i++)
+	{
+		ADMBar+="<td class='AIMframe' style='width:"+cellWidth+";background-color:#AAAAAA;' name='ADMframe' frameNum='"+i+"' ADMstat='s' onmouseover='showADMFrameNum(event)' onclick='goToFrame(event)'></td>";
+	}
+	//resize all table cells
+	/*
+	while(document.getElementsByName("ADMframe"))
+	{
+		this.style.width=cellWidth;
+	}
+	*/
+	browseAdj("ADMArea").innerHTML=ADMBar;
+	allADMFrames=document.getElementsByName("ADMframe");
+	for(j=0;j<allADMFrames.length;j++)
+	{
+		allADMFrames[j].style.width=cellWidth;
+	}
+}
+
+function ADMselector()
+{
+	if(browseAdj("ADMFSB").innerHTML=="ADM Off")
+	{
+		ADMSelectStat=true;
+		browseAdj("ADMFSB").innerHTML="ADM On";
+	}
+	else
+	{
+		ADMSelectStat=false;
+		browseAdj("ADMFSB").innerHTML="ADM Off";
+	}	
+}
+
+function showADMFrameNum(e)
+{
+	var getInfo,displayFN,yOrig2,currFrame;
+	currFrame=-1;
+	//get position of mouse
+	mouseOrig(e);
+	ADMover=true;
+	getInfo=isIE ? e.srcElement : e.target;
+	//display frameNum
+	yOrig2=yOrig-30;
+	displayFN="<div id='displayADMFrame' style='position:absolute;left:"+xOrig+";top:"+yOrig2+";z-index:10;'>"+getInfo.getAttribute("frameNum")+"</div>";
+	browseAdj("popUpArea").innerHTML=displayFN;
+	$(function(event){
+		$("#displayADMFrame").animate({opacity:1,top:'-=20'});	
+	});
+	//select frames if ADM selector is ON!
+	/*
+	if(ADMSelectStat==true)
+	{	
+		trackADM(e);
+	}
+	*/
+	//document.onmousemove=moveHover;
+	document.onmouseout=function(){
+		ADMover=false;
+		clearHover();
+		resetMouseEvents();
+	}
+}
+
+function moveHover(e){
+	  getX=isIE ? event.clientX : e.clientX;
+	  getY=isIE ? event.clientY : e.clientY;	 
+	  browseAdj("displayADMFrame").style.left=getX;
+	  browseAdj("displayADMFrame").style.top=getY-20;	  
+	  //browseAdj("infoBox").style.top=isIE ? event.clientY-offsety3 : e.clientY-offsety3; 
+	  //browseAdj("infoBox").style.left=isIE ? event.clientX-offsetx3 : e.clientX-offsetx3;
+	  //isIE ? currentY+event.clientY-offsety : currentY+e.clientY-offsety;	  
+	  return false;
+}
+
+function clearHover()
+{
+	if(ADMover==false){
+	$(function(event){
+		$("#displayADMFrame").animate({opacity:0,top:'+=20'});	
+	});
+	}
+}
+
+//this function allows users to select ADM frames with the onmousedown event - DOESNT' WORK
+function dragTrackADM(e)
+{
+	var currFrame=-1;
+	isdownADM=true;
+	alert("dtA1");
+	document.onmouseover=function(e){
+		alert("dtA2");
+		fIMO=isIE ? e.srcElement : e.target;	//frame info mouse over
+		if(currFrame!=fIMO.getAttribute("frameNum") && isdownADM)
+		{
+			currFrame=fIMO.getAttribute("frameNum");
+			trackADM(e);
+		}
+		alert("dtA3");
+	}
+	document.onmouseup=function(){
+		isdownADM=false;
+		resetMouseEvents();
+	}
+}
+
+//define the frames where AIM will take place
+function trackADM(e)
+{
+	var getInfo=isIE ? e.srcElement : e.target;
+	//change ADM stat of box
+	if(getInfo.getAttribute("ADMstat")=="s")	//change to ADM
+	{
+		getInfo.setAttribute("ADMstat","a");
+		getInfo.style.backgroundColor="#D4324D";
+	}
+	else		//change to stand still
+	{
+		getInfo.setAttribute("ADMstat","s");
+		getInfo.style.backgroundColor="#AAAAAA";
+	}
+}
+
+function ADM(botNum)
+{
+	var botID,frameOI;
+	var elem1,elem2;
+	var trackADMArray=new Array();
+	for(a=0;a<totalFrame;a++)
+	{
+		trackADMArray[a]=0;
+	}
+	//trackADMArray code: 1 - blank ADM frame, 2 - defined ADM frame, 3 - end ADM frame
+	//STEP 1: get all ADM frames, and label trackADMArray with 0's & 1's
+	var getADMFrameArray=retrieveNodeArray("ADMframe","ADMstat","a");
+	for(b=0;b<getADMFrameArray.length;b++)
+	{
+		trackADMArray[getADMFrameArray[b].getAttribute("frameNum")]=1;
+	}
+	
+	var displayArray="";
+	for(z=0;z<trackADMArray.length;z++)
+	{
+		displayArray+=trackADMArray[z]+"<br/>";
+	}
+	
+	//STEP 4: Traverse array, finding 1's, & fill in the gaps
+	elem1=0;
+	browseAdj("arrayText").innerHTML="";
+	for(a=0;a<trackADMArray.length;a++)
+	{
+		if(trackADMArray[a]==1)	//find element with "1"
+		{
+			elem2=a;
+			AIMFrames(elem1,elem2,botNum);
+			elem1=a+1;
+		}
+	}
+	//browseAdj("TESTArray").innerHTML=displayArray;
+}
+
+function AIMFrames(elem1,elem2,botNum)
+{
+	var getPos1,pos1,pos2,posX1,posY1,posX2,posY2;
+	var stepX,stepY,AIMX,AIMY;
+	var TESTSTR="";
+	//get bot positions from element 1
+	//if(actionArray[elem1][botNum].position==""){actionArray[elem1][botNum].position="-100~-100";}
+	getPos1=findLastPos(elem1,botNum);
+	pos1=getPos1.split("~");
+	posX1=parseInt(pos1[0]);
+	posY1=parseInt(pos1[1]);
+	//get bot positions from element 2
+	if(actionArray[elem2][botNum].position==""){alert("AIMF: "+elem2+" | "+botNum);
+		actionArray[elem2][botNum].position=randOutScreenPos();}
+	pos2=actionArray[elem2][botNum].position.split("~");
+	posX2=parseInt(pos2[0]);
+	posY2=parseInt(pos2[1]);	
+	//step for each frame - step=(Pos2-Pos1)
+	//need "+1" because want the first frame to be incremented by stepX/stepY
+	stepX=(posX2-posX1)/(elem2-elem1+1);
+	stepY=(posY2-posY1)/(elem2-elem1+1);
+	TESTSTR+=elem1+" to "+elem2+" | posX1: "+posX1+" posY1: "+posY1+" posX2: "+posX2+" posY2: "+posY2+" | stepX: "+stepX+" & stepY: "+stepY+"<br/>";
+	browseAdj("arrayText").innerHTML+=TESTSTR;
+	//generate movements via AIM
+	for(i=elem1;i<elem2;i++)
+	{
+		//need "+1" because want the first frame to be incremented by stepX/stepY
+		AIMX=((i-elem1+1)*stepX)+posX1;
+		AIMY=((i-elem1+1)*stepY)+posY1;
+		actionArray[i][botNum].position=AIMX+"~"+AIMY;
+	}
+}
+
+function findLastPos(frameIndex,botNum)
+{
+	var reverseI;
+	var posStat=false;
+	var getPos="";
+	var counter=0;
+	while(counter<frameIndex)
+	{
+		reverseI=frameIndex-counter;	
+		if(actionArray[reverseI][botNum].position!="")
+		{
+			posStat=true;
+			//capture position
+			getPos=actionArray[reverseI][botNum].position;
+			//break out of loop
+			break;
+		}
+		counter++;
+	}
+
+	if(!(posStat)){alert("fLP: "+frameIndex+" | "+botNum);
+		getPos=randOutScreenPos();}
+
+	return getPos;
+}
+
+function randOutScreenPos()
+{
+	var chooseX,chooseY,randomX,randomY,strRandPos;
+	//get dimension of window
+	browserSize();
+	//get random # for x position
+	chooseX=Math.round(Math.random());
+	if(chooseX==0){randomX="-"+Math.random()*100;}
+	else{randomX=(Math.random()*100)+widthOfWindow+100;}
+	//get random # for y position
+	chooseY=Math.round(Math.random());
+	if(chooseY==0){randomY="-"+Math.random()*100;}
+	else{randomY=(Math.random()*100)+heightOfWindow+100;}
+
+	strRandPos=randomX+"~"+randomY;
+	return strRandPos;
+}
+
+function controlMenu(e)
+{
+	mouseOrig(e);
+	var yOrig2=yOrig-80;
+	var displayMenu="<table id='controlMenuBox' style='position:absolute;left:"+xOrig+";top:"+yOrig2+";z-index:10;background-color:#333333;'>";
+	displayMenu+="<tr><td>Menu</td><td><div class='closeX' onclick='closePopUps()'>X</div></td></tr>";
+	displayMenu+="<tr><td class='buttonGray' id='ADMFSB' onclick='ADMselector()' stat='0'>AIM Off</td></tr>";
+	displayMenu+="<tr><td class='buttonGray' onclick='getDataStr(event)'>Get Data String</td></tr>";
+	displayMenu+="<tr><td><div style='width:100%;height:1px;background-color:#D4324D;'></div></td></tr>";
+	displayMenu+="<tr><td>Enter Data</td></tr>";
+	displayMenu+="<tr><td><textarea id='actionScript' class='textField'></textarea></td></tr>";
+	displayMenu+="<tr><td class='buttonGray' style='background-color:#5CA4F5;' onclick='setDataStr();closePopUps();'>Submit</td></tr>";
+	displayMenu+="<tr><td></td></tr>";
+	displayMenu+="</table>";
+	browseAdj("popUpArea").innerHTML=displayMenu;
+}
+
+function setScreen()
+{
+	browserSize();
+	//get heights of top & bottom segments
+	var logoHeight=50;
+	var controlHeight=150;
+	var movieHeight=heightOfWindow-logoHeight-controlHeight;
+	var widthUnit=widthOfWindow/5;
+	//set dimensions for top & bottom
+	browseAdj("logoBar").style.width=widthOfWindow;
+	browseAdj("controlAreaButtons").style.width=widthUnit;
+	browseAdj("controlAreaScroll").style.width=widthUnit*4;
+		//set frameScrollBar & AIM bar
+		browseAdj("frameBar").style.width=widthUnit*4;
+		browseAdj("ADMArea").style.width=widthUnit*4;
+	//set dimensions for movie area
+	browseAdj("movieEnvironment").style.width=widthOfWindow;
+	browseAdj("movieEnvironment").style.height=movieHeight;
+}
+
+function tempInitiation()
+{
+	browserSize();
+	nextFrame(0);		//set frameTracker
+	//set segments of each area
+	setScreen();
+	barLength=parseInt(browseAdj("frameBar").style.width);
+	//centerControlArea();
+	//start ADM area
+	augmentADMBar();
+}
+
+function resizeWindow()
+{
+	browserSize();
+	//set width of window
+	barLength=widthOfWindow;
+	//centerControlArea();
+	//start ADM area
+	augmentADMBar();
+}
+
+function test()
+{
+	alert("JS works");
+}
+</script>
+</head>
+<body onload="tempInitiation()" onResize="resizeWindow()">
+<span id="popUpArea"></span>
+<span id="movieScript" style="display:block;"></span>
+<span id="MSLandmarks" style="position:relative;z-index:2;"></span>
+<span id="arrayText"></span>
+<span id="TESTArray"></span>
+
+<table style="width:100%;" border="0" cellspacing="5" cellpadding="5">
+	<tr>
+	<td colspan="3" id="logoBar" valign="top">
+	<span>PIXEMA</span>
+	</td>
+	</tr>
+	
+	<!-- movie area starts -->
+	<tr>
+	<td colspan="3" id="movieEnvironment" onclick="decisionMaker(event)">
+	</td>
+	</tr>
+
+
+	<!-- control Panel starts -->
+	<tr>
+	<td id="controlAreaButtons" valign="top" class="controlPanel">
+	<table border="0" cellspacing="2" cellpadding="2" style="width:100%;">
+		<tr><td colspan="3" class="buttonControls" onclick="controlMenu(event)">Menu</td></tr>
+		<tr>
+		<td class="buttonControls" id="controlBack" style="width:25%;" stepVal="-1" onclick="nextFrame(-1)"> << </td>
+		<td class="buttonControls" id="playButton" style="width:50%;" stepVal=1" onclick="">Play</td>
+		<td class="buttonControls" id="controlForward" style="width:25%;" stepVal=1" onclick="nextFrame(1)"> >> </td>
+		</tr>
+		<tr><td colspan="3" id="controlModeToggle" class="buttonControls" onclick="setControls()" style="background-color:#5CA4F5;" onclick="setControls()">Edit</td></tr>
+		<tr><td colspan="3"><div style="width:100%;height:1px;background-color:#BBBBBB;"></div></td></tr>
+		<tr><td colspan="3" id="displayFrameNum" class="buttonControls"></td></tr>
+		<tr><td colspan="3" class="buttonControls" onclick="addTenFrames()">+10</td></tr>
+	</table>
+	</td>
+	
+	
+	<td id="controlAreaScroll" valign="top" class="controlPanel">
+	<table id="frameControl" border="0" cellspacing="0" cellpadding="0">
+		<tr>
+		<td>
+		<div id="frameBar">
+			<span id="frameKnob" onmousedown="dragScrollBar(event)">&nbsp;</span>
+		</div>
+		</td>
+		</tr>
+		
+		<tr>
+		<td valign="bottom" align="center">
+		<div style="width:100%;height:15px;">
+			<table border="0" cellspacing="2" cellpadding="2"><tr id="ADMArea"></tr></table>
+		</div>
+		</td>
+		</tr>
+	</table>
+	</td>
+	</tr>
+</table>
+<!-- control Panel ends -->
+
+</body>
+</html>
